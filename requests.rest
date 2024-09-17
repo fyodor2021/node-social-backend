@@ -1,0 +1,57 @@
+POST http://localhost:3001/api/v1/user/signup
+Content-Type: application/json
+
+{
+    "fname":"vedoor",
+    "lname": "Barakat",
+    "email":"vedoorbbs@gmail.com",
+    "password": "123123",
+    "passwordRetype": "123123"
+}
+
+
+###
+
+POST http://localhost:3002/api/v1/auth/login
+Content-Type: application/json
+
+{
+    "email":"vedoorbbs@Gmail.com",
+    "password": "123123"
+}
+
+###
+
+GET http://localhost:3001/api/v1/test/hello
+Authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyRm91bmQiOnsiX2lkIjoi
+NjZjOGIwY2VhNDM5NzQyNDE1YjUxOTI3IiwiZm5hbWUiOiJ2ZWRvb3IiLCJsbmFtZSI6ImJhcmFrYXQiL
+CJlbWFpbCI6InZlZG9vcmJic0BnbWFpbC5jb20iLCJwYXNzd29yZCI6IiQyYiQxMCRQTUFMdmxaVHdFYzY
+wdm54TGgzTVFlMXRmdEZmeHEyZXdIMHd2MUFrQWFZU0lVSmY2SUlCTyIsIl9fdiI6MH0sImlhdCI6MTcyND
+Y5ODkzNiwiZXhwIjoxNzI0Njk4OTUxfQ.cnjlmc4JBlYsFt9xDYUHHnCsQTBXyliIVaSB6n8sygA"
+
+###
+
+
+
+###
+
+
+
+###
+
+
+
+###
+
+
+
+###
+
+
+
+###
+
+
+
+
+###

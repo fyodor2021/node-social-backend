@@ -28,16 +28,25 @@ const userSchema = mongoose.Schema({
         type: String,
         require: true,
         trim: true,
-        minlength: 3,
-        maxlength: 16
     },
     passwordRetype:{
         type: String,
         trim:true,
         require: true,
-        minlength: 3,
-        maxlength: 16
+    },
+    tag: {
+        type: String,
+        required: true,
+        trim: true,
+        lowercase: true
+    },
+    profilePic: {
+        type: String,
+    },
+    backgroundPic: {
+        type: String,
     }
+
 })
 
 module.exports = mongoose.model('user', userSchema)
