@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const authenticateToken = require("../middleware/tokenAuthFilter.js");
 const Redis = require("redis");
+const {getSignedURL} = require("../functions/gcsFunctions.js");
 const redisClient = Redis.createClient({ url: "redis://127.0.0.1:6379" });
 (async () => {
   await redisClient.connect();
@@ -13,7 +14,6 @@ const redisClient = Redis.createClient({ url: "redis://127.0.0.1:6379" });
 })();
 
 authRouter.post("/login", async (req, res) => {
-  console.log({ac: req.headers.authorization ,rf: req.cookies.RF_})
   if (!req.headers.authorization && !req.cookies.RF_) {
     if (req.body == null)
       return res.status(409).send("Please fill the required fields.");
@@ -21,11 +21,11 @@ authRouter.post("/login", async (req, res) => {
       const criterias = {
         email: req.body.email,
       };
-      const userFound = await userModel.findOne(criterias).exec();
-      if (userFound === null) return res.status(403).send("Cannot find User");
+      const storedUser = await userModel.findOne(criterias).exec();
+      if (storedUser === null) return res.status(403).send("Cannot find User");
       else {
-        if (await bcrypt.compare(req.body.password, userFound.password)) {
-          const { _id, fname, lname, email } = userFound;
+        if (await bcrypt.compare(req.body.password, storedUser.password)) {
+          const { _id, fname, lname, email,profilePic  } = storedUser;
           const token = jwt.sign(
             { _id, fname, lname, email },
             process.env.JWT_SECRET,
@@ -56,7 +56,11 @@ authRouter.post("/login", async (req, res) => {
             httpOnly: true,
             path: "/",
           });
-          return res.json({ token: token, user: { _id, fname, lname, email } });
+          const signedProfilePic = storedUser && storedUser.profilePic
+           ?  await getSignedURL(storedUser.profilePic) 
+           : ''
+          // const signedProfilePic = profilePic ?  await getSignedURL(profilePic) : ''
+          return res.json({ token: token, user: { _id, fname, lname, email, signedProfilePic } });
         } else {
           res.status(403).send("Cannot find User");
         }
@@ -68,53 +72,31 @@ authRouter.post("/login", async (req, res) => {
     res.sendStatus(204)
   }
 });
-authRouter.delete("/logout", (req, res) => {});
+authRouter.delete("/logout", (req, res) => {
+res.clearCookie('RT_')
+res.sendStatus(200)
+});
 
-// authRouter.get("/token", authenticateToken, (req, res) => {
-//   console.log(res);
-//   res.send("hellow");
-//   // const refToken = req.cookies.RT_;
-//   // jwt.verify(refToken, process.env.JWT_REFRESH_SECRET, async (err, user) => {
-//   //   const storedToken = await redisClient.get(user.email + "RefreshToken");
-//   //   if (storedToken && storedToken === refToken) {
-//   //     if (err) {
-//   //       switch (err.name) {
-//   //         case "TokenExpiredError":
-//   //           res.clearCookie("RT_");
-//   //       }
-//   //     } else {
-//   //       const storedUser = await userModel.findOne({ _id: user._id }).exec();
-//   //       if (storedUser) {
-//   //         console.log(storedUser);
-//   //         const { _id, fname, lname, email } = user;
-//   //         const newAccessToken = jwt.sign(
-//   //           { _id, fname, lname, email },
-//   //           process.env.JWT_SECRET,
-//   //           { expiresIn: "5s" }
-//   //         );
-//   //         res.status(201).send(newAccessToken);
-//   //       } else {
-//   //         res.clearCookie("RT_");
-//   //         res.status(403).send("unauthenticated");
-//   //       }
-//   //     }
-//   //   }
-//   // });
-// });
+
 
 authRouter.get("/user", authenticateToken, (req, res) => {
   const authHeader = res.getHeaders().authorization
   const token = authHeader && authHeader.slice(7);
-  console.log(res.getHeaders())
   if (token) {
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    jwt.verify(token, process.env.JWT_SECRET, async (err, user) => {
       if (err) res.status(403).send("unauthenticated");
+      const storedUser = await userModel.findOne({_id: user._id})
+      const signedProfilePic = storedUser && storedUser.profilePic
+       ?  await getSignedURL(storedUser.profilePic) 
+       : ''
+
       const userResponse = {
         user:{
           _id: user._id,
           fname: user.fname,
           lname: user.lname,
           email: user.email,
+          signedProfilePic
         },
         token
       };

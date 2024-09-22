@@ -3,7 +3,7 @@ const userRouter = express.Router();
 const userModel = require("../models/User.js");
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
-const getSignedURL = require("../functions/getSignedURL.js");
+const {getSignedURL} = require("../functions/gcsFunctions.js");
 const authenticateToken = require("../middleware/tokenAuthFilter.js");
 const followModel = require("../models/Follow.js");
 const postModel = require("../models/Post.js");
@@ -28,16 +28,27 @@ userRouter.post("/signup", async (req, res) => {
     }
   }
 });
-userRouter.get("/id/:id", authenticateToken, async (req, res) => {
-  if (req.params.id) {
-    const user = await userModel.findOne({ _id: req.params.id }).exec();
-    const following = await followModel.find({ "sender._id":user._id});
-    const followers = await followModel.find({ "receiver._id":user._id});
-    const postCount = await postModel.countDocuments({ 'user._id': user._id});
+userRouter.get("/id", authenticateToken, async (req, res) => {
+  console.log(req.query)
+  if (req.query.visitedUserId && req.query.userId) {
+    const visitedObjectId = new mongoose.Types.ObjectId(req.query.visitedUserId)
+    const [user, following, followers, postCount] = await Promise.all([
+      userModel.findOne({ _id: visitedObjectId}).exec(),
+      followModel.find({ "sender._id": visitedObjectId}),
+      followModel.find({ "receiver._id": visitedObjectId }),
+      postModel.countDocuments({ "user._id": visitedObjectId }),
+    ]);
     if (user) {
-      let signedProfilePic
+      let followedByLoggedUser = false
+      for(let follower of followers){
+        if(follower.sender._id.toString() === req.query.userId){
+          followedByLoggedUser = true
+          break;
+        }
+      }
+      let signedProfilePic;
       if (user.profilePic) {
-        signedProfilePic =  await getSignedURL(user.profilePic);
+        signedProfilePic = await getSignedURL(user.profilePic);
       }
       const { backgroudPic, email, fname, lname, tag, _id } = user;
       const userResponse = {
@@ -50,8 +61,9 @@ userRouter.get("/id/:id", authenticateToken, async (req, res) => {
           tag,
           _id,
         },
-        following,
-        followers,
+        followingCount: following.length,
+        followersCount: followers.length,
+        followedByLoggedUser,
         postCount,
       };
       res.status(200).json(userResponse);

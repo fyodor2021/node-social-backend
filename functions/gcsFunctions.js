@@ -1,0 +1,46 @@
+const { Storage } = require("@google-cloud/storage");
+require("dotenv").config();
+const projectId = process.env.PROJECT_ID;
+const bucketName = process.env.BUCKET_NAME;
+const keyFilename = process.env.KEY_FILE_NAME;
+const Redis = require("redis");
+const redisClient = Redis.createClient({ url: "redis://127.0.0.1:6379" });
+(async () => {
+  await redisClient.connect();
+  redisClient.on("error", (err) => console.log("Redis Client Error", err));
+})();
+
+const storage = new Storage({ projectId, keyFilename });
+const getSignedURL = async (fileName) => {
+  if (fileName) {
+    const savedUrl = await redisClient.get(fileName);
+    if (savedUrl) {
+      return savedUrl;
+    } else {
+      const options = {
+        action: "read",
+        expires: Date.now() + 15 * 60 * 10000,
+      };
+      try {
+        const [url] = await storage
+          .bucket(bucketName)
+          .file(fileName)
+          .getSignedUrl(options);
+        redisClient.setEx(fileName, options.expires, url);
+        return url;
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  }
+};
+const deleteImage = async (fileName) => {
+  try {
+    if (fileName) {
+      await storage.bucket(bucketName).file(fileName).delete();
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+module.exports = { getSignedURL, deleteImage };

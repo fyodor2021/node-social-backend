@@ -182,10 +182,10 @@ mongoose
   .then(() => console.log("connected"))
   .catch((error) => console.log(error));
 
-const users = seedUsers().then(res => {
-  res.map(async (user) => {
+  
+const users = seedUsers().then(async res => {
+  await Promise.all(res.map(async (user) => {
     await user.save();
-  });
+  }));
   process.exit();
-
-});
+})

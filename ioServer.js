@@ -14,6 +14,7 @@ const expressServer = app.listen(3003, () =>
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 const Redis = require("redis");
+const { getSignedURL } = require("./functions/gcsFunctions.js");
 const redisClient = Redis.createClient({ url: "redis://127.0.0.1:6379" });
 (async () => {
   await redisClient.connect();
@@ -29,20 +30,23 @@ mongoose
   })
   .then(console.log("connected"))
   .catch((error) => console.log(error));
-
-var io = socketio(expressServer, {
-  cors: {
-    origin: ["http://localhost:3000"],
-    credentials: true,
-  },
-});
+try {
+  var io = socketio(expressServer, {
+    cors: {
+      origin: ["http://localhost:3000"],
+      credentials: true,
+    },
+  });
+} catch (err) {
+  console.log(err);
+}
 io.use((socket, next) => {
   socketAuthFilter(socket, next);
 });
 io.on("connection", (socket) => {
-  console.log(socket.id)
+  console.log(socket.id);
   socket.on("followCreated", async (data, cb) => {
-    console.log(data)
+    console.log(data);
     if (data.sender && data.receiverId) {
       const newNoti = new notiModel({
         sender: data.sender,
@@ -50,25 +54,22 @@ io.on("connection", (socket) => {
         requestId: data.requestId,
         type: "request",
       });
-      try{
+      try {
         await newNoti.save();
-      }catch(err){
-        console.log(err)
+      } catch (err) {
+        console.log(err);
       }
       try {
         const receiver = await userModel
           .findOne({ _id: newNoti.receiverId })
           .exec();
         if (receiver.email) {
-          const storedSocket = await redisClient.get(
-            receiver.email + "Socket"
-          );
-          // console.log(storedSocket)
+          const storedSocket = await redisClient.get(receiver.email + "Socket");
           if (storedSocket) {
             cb({
               status: 200,
             });
-            await io.to(storedSocket).emitWithAck("notification", newNoti);
+            await io.to(storedSocket).emit("notification", newNoti);
           }
         }
       } catch (err) {
@@ -81,40 +82,28 @@ io.on("connection", (socket) => {
     console.log(data);
   });
 
-
   socket.on("newMessage", async (data) => {
-    console.log('im here')
+    console.log("im here");
     console.log(data);
-    const message = await messageModel
-      .findOne({
-        $and: [
-          { "receiver._id": new mongoose.Types.ObjectId(data.receiverId) },
-          { "sender._id": new mongoose.Types.ObjectId(data.senderId) },
-        ],
-      })
-      .sort({ date: -1 });
-    const sender = await userModel
-      .findOne({ _id: data.senderId })
-      .select("email");
-    const receiver = await userModel
-      .findOne({ _id: data.receiverId })
-      .select("email");
-    console.log({ sender, receiver });
+    const [message, sender, receiver] = await Promise.all([
+      messageModel
+        .findOne({
+          $and: [
+            { "receiver._id": new mongoose.Types.ObjectId(data.receiverId) },
+            { "sender._id": new mongoose.Types.ObjectId(data.senderId) },
+          ],
+        })
+        .sort({ date: -1 }),
+      userModel.findOne({ _id: data.senderId }).select(["email","profilePic"]),
+      userModel.findOne({ _id: data.receiverId }).select("email"),
+    ]);
     const senderSocket = await redisClient.get(sender.email + "Socket");
+    const signedProfilePic = sender && sender.profilePic ? await getSignedURL(sender.profilePic) : ''
     const receiverSocket = await redisClient.get(receiver.email + "Socket");
     io.to(senderSocket).to(receiverSocket).emit("message", { message });
   });
 
-
-
-
-
   socket.on("disconnect", (socket) => {
     console.log(`socket with ${socket} has disconnected`);
   });
-
-
-
-
- 
 });

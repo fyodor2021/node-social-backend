@@ -18,9 +18,13 @@ const postSchema = mongoose.Schema({
         trim: true,
         default: 'public'
     },
-    fileNames: {
-        type: Array,
-        default: []
+    fileName: {
+        type: String,
+        default: ''
+    },
+    modified: {
+        type: Boolean, 
+        default: false,
     }
 })
 

@@ -25,11 +25,13 @@ mongoose
     console.log(contents.length)
     for(let content of contents){
         for(let user of users){
+          if(user.email !== 'vedoorbbs@gmail.com'){
             const like = new likeModel({
                 userId: user._id,
                 contentId: content._id
             })
             await like.save();
+          }
         }   
     }
     process.exit();

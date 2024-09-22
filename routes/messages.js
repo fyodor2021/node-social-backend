@@ -3,7 +3,7 @@ const authenticateToken = require("../middleware/tokenAuthFilter.js");
 const messageModel = require("../models/Message.js");
 const userModel = require("../models/User.js");
 const mongoose = require("mongoose");
-const getSignedURL = require("../functions/getSignedURL.js");
+const { getSignedURL } = require("../functions/gcsFunctions.js");
 const messageRouter = express.Router();
 
 messageRouter.post("/", authenticateToken, async (req, res) => {
@@ -22,7 +22,7 @@ messageRouter.post("/", authenticateToken, async (req, res) => {
       });
       try {
         message.save();
-        res.sendStatus(201)
+        res.sendStatus(201);
       } catch (err) {
         res.sendStatus(409);
       }
@@ -32,7 +32,6 @@ messageRouter.post("/", authenticateToken, async (req, res) => {
   } else {
     res.status(409).send("please type something");
   }
-  
 });
 messageRouter.get("/", async (req, res) => {
   console.log(req.query);
@@ -90,7 +89,7 @@ messageRouter.get("/convo", authenticateToken, async (req, res) => {
     if (user) {
       let { _id, fname, lname, profilePic, tag } = user;
       profilePic = await getSignedURL(user.profilePic);
-      userResponse.push({ _id, fname, lname, signedUserPic: profilePic, tag });
+      userResponse.push({ _id, fname, lname, signedProfilePic: profilePic, tag });
     }
   }
   res.status(200).send(userResponse);
