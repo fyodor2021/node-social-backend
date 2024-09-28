@@ -15,19 +15,19 @@ services:
     networks:
       - node-social
 
-  redis:
-    image: redis:latest
-    restart: always
-    ports:
-      - "6379:6379"
-    container_name: redis-social
-    volumes:
-      - ./redis/dаta:/root/redis
-      # - /path/to/local/redis.conf:/usr/local/etc/redis/redis.conf
-    environment:
-      - REDIS_PASSWORD=root
-      - REDIS_PORT=6379
-      - REDIS_DATABASES=16
+  # redis:
+  #   image: redis:latest
+  #   restart: always
+  #   ports:
+  #     - "6379:6379"
+  #   container_name: redis-social
+  #   volumes:
+  #     - ./redis/dаta:/root/redis
+  #     # - /path/to/local/redis.conf:/usr/local/etc/redis/redis.conf
+  #   environment:
+  #     - REDIS_PASSWORD=root
+  #     - REDIS_PORT=6379
+  #     - REDIS_DATABASES=16
 networks:
   node-social:
     driver: bridge

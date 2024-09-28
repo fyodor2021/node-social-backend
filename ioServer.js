@@ -33,7 +33,7 @@ mongoose
 try {
   var io = socketio(expressServer, {
     cors: {
-      origin: ["http://localhost:3000"],
+      origin: ["http://localhost:8080", "http://localhost:3000"],
       credentials: true,
     },
   });
@@ -44,8 +44,36 @@ io.use((socket, next) => {
   socketAuthFilter(socket, next);
 });
 io.on("connection", (socket) => {
-  console.log(socket.id);
+  console.log("\n NEW CONNECTION.", socket.id);
+
+  socket.broadcast.emit("connected", socket.user._id);
+  
+  socket.on("onUserConnectBundle", async (userList) => {
+    let onlineUsers = [];
+    for (let userId of userList) {
+      const user = await userModel.findOne({ _id: userId }).select("email");
+      if (user.email) {
+        const userSocket = await redisClient.get(user.email + "Socket");
+        if (userSocket) {
+          onlineUsers.push(user._id);
+        }
+      }
+    }
+    io.to(socket.id).emit('connectionBundle',onlineUsers)
+  });
+
+
+
+
+
+
+
+
+
+
+  
   socket.on("followCreated", async (data, cb) => {
+    console.log("im at the follow created");
     console.log(data);
     if (data.sender && data.receiverId) {
       const newNoti = new notiModel({
@@ -78,13 +106,25 @@ io.on("connection", (socket) => {
     }
   });
 
+
+
+
+
+
+
   socket.on("getNotifications", (data) => {
     console.log(data);
   });
 
-  socket.on("newMessage", async (data) => {
-    console.log("im here");
-    console.log(data);
+
+
+
+
+
+
+  socket.on("newMessage", async (data, cb) => {
+    // console.log("im here");
+    // console.log(data);
     const [message, sender, receiver] = await Promise.all([
       messageModel
         .findOne({
@@ -94,16 +134,27 @@ io.on("connection", (socket) => {
           ],
         })
         .sort({ date: -1 }),
-      userModel.findOne({ _id: data.senderId }).select(["email","profilePic"]),
+      userModel.findOne({ _id: data.senderId }).select(["email", "profilePic"]),
       userModel.findOne({ _id: data.receiverId }).select("email"),
     ]);
     const senderSocket = await redisClient.get(sender.email + "Socket");
-    const signedProfilePic = sender && sender.profilePic ? await getSignedURL(sender.profilePic) : ''
     const receiverSocket = await redisClient.get(receiver.email + "Socket");
-    io.to(senderSocket).to(receiverSocket).emit("message", { message });
+    cb({
+      status: 200,
+    });
+    io.to(senderSocket)
+      .to(receiverSocket)
+      .emit("message", { message });
+      io
+      .to(receiverSocket)
+      .emit("newMessageAlert", {userId: socket.user._id});
   });
 
-  socket.on("disconnect", (socket) => {
-    console.log(`socket with ${socket} has disconnected`);
+
+
+
+
+  socket.on("disconnect", () => {
+    socket.broadcast.emit("userDisconnected", socket.user._id);
   });
 });

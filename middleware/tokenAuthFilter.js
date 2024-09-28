@@ -8,7 +8,6 @@ const redisClient = Redis.createClient({ url: "redis://127.0.0.1:6379" });
   redisClient.on("error", (err) => console.log("Redis Client Error", err));
 })();
 async function authenticateToken(req, res, next) {
-  console.log(req.path)
   const authHeader = req.headers.authorization;
   const token = authHeader && authHeader.slice(7);
   if (!token) {

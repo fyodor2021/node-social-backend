@@ -12,7 +12,9 @@ const messageSchema = mongoose.Schema({
     },
     content: {
         type: String,
-        require: true,
+    },
+    content: {
+        type: Object
     },
     date: {
         type: Date,

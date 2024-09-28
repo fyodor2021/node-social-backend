@@ -27,7 +27,6 @@ mongoose
 async function getPostsAndCreateComments() {
   const posts = await postModel.find({}).limit(210).exec();
   const users = await userModel.find({}).limit(14).exec();
-  33;
   if (posts) {
     for (let post of posts) {
       for (let user of users) {

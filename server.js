@@ -28,7 +28,9 @@ app.use(bodyParser.urlencoded({extended: true,
 
 }));
 app.use(bodyParser.json());
-app.use(cors({  origin: "http://localhost:3000",
+
+
+app.use(cors({  origin: ["http://localhost:8080","http://localhost:3000"],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     exposedHeaders: ['Authorization'],
@@ -43,7 +45,6 @@ apiv1.use('/notification', notiRouter)
 apiv1.use('/like', likeRouter)
 app.use(cookieParser());
 app.use('/api/v1', apiv1)
-
 
 //connections;
 mongoose.connect(process.env.MONGO_BASE_URL,{

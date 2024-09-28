@@ -6,7 +6,7 @@ const postRouter = express.Router();
 const multer = require("multer");
 require("dotenv").config();
 const multerGoogle = require("multer-google-storage");
-const {getSignedURL, deleteImage} = require("../functions/gcsFunctions.js");
+const { getSignedURL, deleteImage } = require("../functions/gcsFunctions.js");
 const commentModel = require("../models/Comment.js");
 const likeModel = require("../models/Like.js");
 const shuffleArray = require("../functions/shuffleArray.js");
@@ -87,7 +87,7 @@ postRouter.get("/user/id/", authenticateToken, async (req, res) => {
 postRouter.get("/", authenticateToken, async (req, res) => {
   console.log(req.query);
   const posts = await postModel
-    .find({})
+    .find({ "user._id": { $ne: new mongoose.Types.ObjectId(req.query.userId) } })
     .skip(req.query.offset)
     .limit(4)
     // .sort({date: -1})
@@ -102,67 +102,84 @@ postRouter.get("/", authenticateToken, async (req, res) => {
     res.sendStatus(404);
   }
 });
-postRouter.put('/',authenticateToken,upload.single("image"), async (req,res) => {
-  const postRequestJson = JSON.parse(req.body.post);
-  if(postRequestJson.user && postRequestJson.content){
-    const [user, post] = await Promise.all([
-      userModel.findOne({_id: postRequestJson.user._id}).select(['_id', 'fname', 'lname','email'])
-      ,
-      postModel.findOne({_id: postRequestJson.postId})
-    ])
-    if(user && post){
-      try{
-        const editedPost = await postModel.findByIdAndUpdate(post, {
-          user : {
-            _id: user._id,
-            fname: user.fname,
-            lname: user.lname,
-            email: user.email,
-          },
-          content: postRequestJson && postRequestJson.content ? postRequestJson.content : '',
-          fileName: req.file && req.file.filename ? 
-          req.file.filename : postRequestJson.imageRemoved ? '' : post.fileName,
-          moified: true
-        },{new: true})
-        if(editedPost){
-            if(editedPost.fileName !== post.fileName
-               || postRequestJson.fileName &&
-                postRequestJson.imageRemoved){
-              await deleteImage(post.fileName)
+postRouter.put(
+  "/",
+  authenticateToken,
+  upload.single("image"),
+  async (req, res) => {
+    const postRequestJson = JSON.parse(req.body.post);
+    if (postRequestJson.user && postRequestJson.content) {
+      const [user, post] = await Promise.all([
+        userModel
+          .findOne({ _id: postRequestJson.user._id })
+          .select(["_id", "fname", "lname", "email"]),
+        postModel.findOne({ _id: postRequestJson.postId }),
+      ]);
+      if (user && post) {
+        try {
+          const editedPost = await postModel.findByIdAndUpdate(
+            post,
+            {
+              user: {
+                _id: user._id,
+                fname: user.fname,
+                lname: user.lname,
+                email: user.email,
+              },
+              content:
+                postRequestJson && postRequestJson.content
+                  ? postRequestJson.content
+                  : "",
+              fileName:
+                req.file && req.file.filename
+                  ? req.file.filename
+                  : postRequestJson.imageRemoved
+                  ? ""
+                  : post.fileName,
+              moified: true,
+            },
+            { new: true }
+          );
+          if (editedPost) {
+            if (
+              editedPost.fileName !== post.fileName ||
+              (postRequestJson.fileName && postRequestJson.imageRemoved)
+            ) {
+              await deleteImage(post.fileName);
             }
-            const postResponse = await preparePostResponse(editedPost)
-            console.log(postResponse)
-            res.status(201).send(postResponse)
-        }else{
-          res.status(200).send('post remained unmodified')
-        } 
-      }catch(err){
-        console.log(err)
-        res.status(409).send(err);
+            const postResponse = await preparePostResponse(editedPost);
+            console.log(postResponse);
+            res.status(201).send(postResponse);
+          } else {
+            res.status(200).send("post remained unmodified");
+          }
+        } catch (err) {
+          console.log(err);
+          res.status(409).send(err);
+        }
+      } else {
+        res.status(409).send("can't locate resources to perform operation");
       }
-    }else{
-      res.status(409).send("can't locate resources to perform operation");
+    } else {
+      res.status(409).send("information needed to perform process not present");
     }
-  }else{
-    res.status(409).send("information needed to perform process not present");
-
   }
-})
+);
 postRouter.delete("/", async (req, res) => {
   if (req.query.userId && req.query.postId) {
-    const [user, post,comments] = await Promise.all([
+    const [user, post, comments] = await Promise.all([
       userModel.findOne({ _id: req.query.userId }),
       postModel.findOne({ _id: req.query.postId }),
-      commentModel.find({contentId: req.query.postId})
+      commentModel.find({ contentId: req.query.postId }),
     ]);
     if (user && post) {
       try {
         await Promise.all([
           recDeleteComments(comments),
           postModel.deleteOne(post),
-          post.fileName ? deleteImage(post.fileName) : ''
-        ])
-        res.sendStatus(204)
+          post.fileName ? deleteImage(post.fileName) : "",
+        ]);
+        res.sendStatus(204);
       } catch (err) {
         res.status(409).send(err.toString());
       }
@@ -224,12 +241,13 @@ async function preparePostResponse(post, userId) {
     return postResponse;
   }
 }
-async function recDeleteComments(comments){
-  if(comments.length === 0) return 
-  for(let comment of comments){
-    const storedComment = await commentModel.find({contentId: comment._id})
-    recDeleteComments(storedComment)
-    commentModel.deleteOne(comment)
+async function recDeleteComments(comments) {
+  if (comments.length === 0) return;
+  for (let comment of comments) {
+    const storedComment = await commentModel.find({ contentId: comment._id });
+    console.log(storedComment)
+    recDeleteComments(storedComment);
+    commentModel.deleteOne(comment);
   }
 }
 module.exports = postRouter;

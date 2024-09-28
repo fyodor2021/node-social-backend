@@ -2,6 +2,7 @@ const express = require("express");
 const authenticateToken = require("../middleware/tokenAuthFilter.js");
 const messageModel = require("../models/Message.js");
 const userModel = require("../models/User.js");
+const postModel = require('../models/Post.js')
 const mongoose = require("mongoose");
 const { getSignedURL } = require("../functions/gcsFunctions.js");
 const messageRouter = express.Router();
@@ -21,9 +22,14 @@ messageRouter.post("/", authenticateToken, async (req, res) => {
         content: req.body.content,
       });
       try {
+        if(typeof(message.content) === 'object'){
+          const userFilename = await userModel.findOne({_id: message.content.post.user._id}).select('profilePic')
+          message.content.signedProfilePic = userFilename.profilePic ?  userFilename.profilePic : ''
+        }
         message.save();
         res.sendStatus(201);
       } catch (err) {
+        console.log(err)
         res.sendStatus(409);
       }
     } else {
@@ -34,7 +40,31 @@ messageRouter.post("/", authenticateToken, async (req, res) => {
   }
 });
 messageRouter.get("/", async (req, res) => {
-  console.log(req.query);
+  console.log(req.query)
+  const chatsCount = await messageModel.countDocuments({
+    $or: [
+      {
+        $and: [
+          { "receiver._id": new mongoose.Types.ObjectId(req.query.userId) },
+          {
+            "sender._id": new mongoose.Types.ObjectId(
+              req.query.selectedUserId
+            ),
+          },
+        ],
+      },
+      {
+        $and: [
+          {
+            "receiver._id": new mongoose.Types.ObjectId(
+              req.query.selectedUserId
+            ),
+          },
+          { "sender._id": new mongoose.Types.ObjectId(req.query.userId) },
+        ],
+      },
+    ],
+  })
   const chats = await messageModel
     .find({
       $or: [
@@ -60,8 +90,18 @@ messageRouter.get("/", async (req, res) => {
         },
       ],
     })
-    .sort({ date: 1 })
+    .sort({ date: -1 })
+    .skip(req.query.offset)
+    .limit(20)
     .exec();
+    for(let chat of chats){
+      if(typeof(chat.content) === 'object'){
+        chat.content.signedProfilePic = chat.content.signedProfilePic ?
+        await getSignedURL(chat.content.signedProfilePic) : ''
+        chat.content.signedPostPic = chat.content.post.fileName ? 
+        await getSignedURL(chat.content.post.fileName) : ''
+      }
+    }
   res.status(200).send(chats);
 });
 messageRouter.get("/convo", authenticateToken, async (req, res) => {

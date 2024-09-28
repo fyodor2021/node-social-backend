@@ -9,7 +9,7 @@ const mongoose = require('mongoose')
 const cookieParser = require('cookie-parser')
 
 //middleware and route definitions;
-app.use(cors({  origin: ["http://localhost:3000"],
+app.use(cors({  origin: ["http://localhost:8080","http://localhost:3000"],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     'Access-Control-Allow-Headers': 'Authorization',
