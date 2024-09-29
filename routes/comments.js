@@ -70,7 +70,54 @@ commentRouter.post("/", authenticateToken, async (req, res) => {
     res.status(404);
   }
 });
-
+commentRouter.put("/",authenticateToken,async (req, res) => {
+  console.log('this is the content id you want', req.body.commentId)
+    if (req.body.user && req.body.content) {
+      const [user, comment] = await Promise.all([
+        userModel
+          .findOne({ _id: req.body.user._id })
+          .select(["_id", "fname", "lname", "email"]),
+        commentModel.findOne({ _id: req.body.commentId }),
+      ]);g
+      if (user && comment) {
+        console.log('this is the comment' , comment)
+        try {
+          const editedComment = await commentModel.findByIdAndUpdate(
+            comment,
+            {
+              user: {
+                _id: user._id,
+                fname: user.fname,
+                lname: user.lname,
+              },
+              contentId: comment.contentId,
+              content:
+                req.body && req.body.content
+                  ? req.body.content
+                  : "",
+              modified: true,
+            },
+            { new: true }
+          );
+          if (editedComment) {
+            const commentResponse = await prepareCommentResponse(editedComment);
+            console.log('this is the comment response with the edited comment',commentResponse);
+            res.status(201).send(commentResponse);
+          } else {
+            res.status(200).send("comment remained unmodified");
+          }
+        } catch (err) {
+          console.log(err);
+          res.status(409).send(err);
+        }
+      } else {
+        res.status(409).send("can't locate resources to perform operation");
+      }
+    } else {
+      res.status(409).send("information needed to perform process not present");
+    }
+  }
+);
 commentRouter.delete("/", async (req, res) => {
   if (req.query.userId && req.query.commentId) {
     const commentCount = await commentModel.countDocuments({});
@@ -87,8 +134,8 @@ commentRouter.delete("/", async (req, res) => {
     if (user && comment) {
       try {
         await Promise.all([
-          // recDeleteComments(comments),
-          // commentModel.deleteOne(comment),
+          recDeleteComments(comments),
+          commentModel.deleteOne(comment),
         ]);
         const commentCount = await commentModel.countDocuments({});
         console.log(commentCount)
@@ -133,11 +180,9 @@ async function prepareCommentResponse(comment, userId) {
 async function recDeleteComments(comments) {
   if (comments.length === 0) return;
   for (let comment of comments) {
-    console.log(comment._id)
     const storedComment = await commentModel.find({ contentId: comment._id });
-    console.log(storedComment)
-    // recDeleteComments(storedComment);
-    // commentModel.deleteOne(comment);
+    await recDeleteComments(storedComment);
+    await commentModel.deleteOne(comment);
   }
 }
 module.exports = commentRouter;

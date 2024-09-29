@@ -245,9 +245,8 @@ async function recDeleteComments(comments) {
   if (comments.length === 0) return;
   for (let comment of comments) {
     const storedComment = await commentModel.find({ contentId: comment._id });
-    console.log(storedComment)
-    recDeleteComments(storedComment);
-    commentModel.deleteOne(comment);
+    await recDeleteComments(storedComment);
+    await commentModel.deleteOne(comment);
   }
 }
 module.exports = postRouter;

@@ -17,5 +17,9 @@ const commentModel = mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  modified: {
+    type: Boolean,
+    default: false
+  }
 });
 module.exports = mongoose.model("comment", commentModel);
