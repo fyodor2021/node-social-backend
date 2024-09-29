@@ -15,11 +15,14 @@ const props = defineProps({
     contentLength: {
         type: Number,
         default: 1
+    },
+    content: {
+        type: String
     }
 })
 
 const state = reactive({
-    input: '',
+    input: props.content ? props.content: '',
     displayEmo: false,
     comments: []
 })
@@ -27,6 +30,7 @@ const state = reactive({
 const onSelectEmoji = (emoji) => {
     state.input = state.input + emoji.i
 }
+
 const toggleDisplayEmoji = () => {
     state.displayEmo = !state.displayEmo
 }
@@ -47,25 +51,42 @@ const handleCreateComment = () => {
         })
     }
 }
+const handleEditComment = () => {
+    const commentRequest = {
+        user: {
+            _id: authStore._id,
+            fname: authStore.fname,
+            lname: authStore.lname
+        },
+        commentId: props.contentId,
+        content: state.input
+    }
+    axios.put('/comment', commentRequest).then(res => {
+            if (res && res.status === 204) {
+                console.log(res)
+            } 
+        })
+}
 const handleTyping = () => {
     if(state.displayEmo){
         state.displayEmo = !state.displayEmo
     }
 }
+
 </script>
 <template>
-    <div :class="`wrapper ${contentLength <= 0 ? 'rounded-2xl': ''}`">
+    <div :class="`wrapper flex-row ${contentLength <= 0 ? 'rounded-2xl': ''}`">
         <div class="flex justify-center items-center w-full pr-1 pl-1">
             <img class="h-12 mr-4" :src="profile" alt="profile pictore" />
             <textarea @input="handleTyping" v-model="state.input" type="text" class="input"
                 placeholder="Add your comment..."></textarea>
         </div>
         <div class="flex justify-center items-center">
-            <button @click="handleCreateComment" class="bg-white text-black p-2 rounded mr-4">Reply</button>
+            <button @click="() => content ? handleEditComment() : handleCreateComment()" class="bg-white text-black p-2 rounded mr-4">{{ content ? 'Edit' : 'Reply' }}</button>
             <button @click="toggleDisplayEmoji"><i class="pi pi-face-smile text-3xl text-black"></i>
             </button>
         </div>
-        <div class="emoji-wrapper cursor-pointer">
+        <div  class="emoji-wrapper cursor-pointer">
             <EmojiPicker v-if="state.displayEmo" :native="true" @select="onSelectEmoji" />
         </div>
     </div>
@@ -79,7 +100,6 @@ const handleTyping = () => {
     align-items: center;
     display: flex;
     position: relative;
-    flex-direction: row;
     justify-content: space-between;
     align-items: center;
     padding: .5rem 1rem;

@@ -99,13 +99,13 @@ const handleCommentDelete = () => {
                     </div>
                 </div>
             </div>
-            <div class="flex justify-between">
-                <div @click="handleContentClick" class="p-2 pr-12 pl-12 cursor-pointer">
+            <div class="flex justify-between w-3/4 break-words">
+                <div v-if="!state.displayEdit" @click="handleContentClick" class="p-2 pr-12 pl-12 cursor-pointer">
                     <div v-if="state.displayDes || commentResponse.comment.content.length < 150"
-                        class="font-bold text-lg">
+                        class="font-bold text-lg w-full">
                         {{ commentResponse.comment.content }}
                     </div>
-                    <div v-else class="font-bold text-lg">
+                    <div v-else class="font-bold text-lg w-full">
                         {{ commentResponse.comment.content.slice(0, 150) }}... <span class="text-gray-400">See
                             More</span>
                     </div>
@@ -113,7 +113,11 @@ const handleCommentDelete = () => {
                         <img :src="commentResponse.signedPostPic" rel="preload" />
                     </div>
                 </div>
-                <LikeComment :contentResponse="commentResponse" />
+                <div v-else class="w-full"> 
+                    <ReplyBox :contentId="commentResponse.comment._id" 
+                        :contentLength="state.comments.length" :content="commentResponse.comment.content"/>
+                </div>
+                <LikeComment v-if="!state.displayEdit" :contentResponse="commentResponse" :isComment="true" />
             </div>
             <div class="w-full flex justify-around">
                 <div v-if="state.displayDes && commentResponse.commentCount > 0" class="tracker"></div>
@@ -169,6 +173,7 @@ const handleCommentDelete = () => {
     top: 3.5rem;
     padding: .5rem;
     border-radius: .5rem 0 .5rem .5rem;
+    z-index: 999;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
