@@ -1,0 +1,110 @@
+<script setup>
+import { reactive } from 'vue';
+import profile from '@/assets/img/profile.png'
+import EmojiPicker from 'vue3-emoji-picker'
+import { useAuthStore } from '@/store/auth';
+import 'vue3-emoji-picker/css'
+import axios from 'axios'
+const authStore = useAuthStore();
+
+const props = defineProps({
+    contentId: {
+        type: String,
+        required: true,
+    },
+    contentLength: {
+        type: Number,
+        default: 1
+    }
+})
+
+const state = reactive({
+    input: '',
+    displayEmo: false,
+    comments: []
+})
+
+const onSelectEmoji = (emoji) => {
+    state.input = state.input + emoji.i
+}
+const toggleDisplayEmoji = () => {
+    state.displayEmo = !state.displayEmo
+}
+
+const handleCreateComment = () => {
+    if (state.input) {
+        const request = {
+            user: {
+                _id: authStore._id,
+                fname: authStore.fname,
+                lname: authStore.lname
+            },
+            contentId: props.contentId,
+            content: state.input
+        }
+        axios.post('/comment', request).then(res => {
+            state.comments = [...state.comments, res.data]
+        })
+    }
+}
+const handleTyping = () => {
+    if(state.displayEmo){
+        state.displayEmo = !state.displayEmo
+    }
+}
+</script>
+<template>
+    <div :class="`wrapper ${contentLength <= 0 ? 'rounded-2xl': ''}`">
+        <div class="flex justify-center items-center w-full pr-1 pl-1">
+            <img class="h-12 mr-4" :src="profile" alt="profile pictore" />
+            <textarea @input="handleTyping" v-model="state.input" type="text" class="input"
+                placeholder="Add your comment..."></textarea>
+        </div>
+        <div class="flex justify-center items-center">
+            <button @click="handleCreateComment" class="bg-white text-black p-2 rounded mr-4">Reply</button>
+            <button @click="toggleDisplayEmoji"><i class="pi pi-face-smile text-3xl text-black"></i>
+            </button>
+        </div>
+        <div class="emoji-wrapper cursor-pointer">
+            <EmojiPicker v-if="state.displayEmo" :native="true" @select="onSelectEmoji" />
+        </div>
+    </div>
+</template>
+
+<style scoped>
+.wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    position: relative;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: .5rem 1rem;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.068),
+        1px 1px 1px rgba(0, 0, 0, 0.068),
+        -1px 1px 1px rgba(0, 0, 0, 0.068);
+    border-radius: 0 0 1rem 1rem;
+    background-color: rgb(255, 254, 254);
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.295);
+    margin-bottom: 1rem
+}
+
+.input {
+    width: 100%;
+    height: auto;
+    color: black;
+    resize: none;
+}
+
+.input:focus {
+    outline: none;
+}
+
+.emoji-wrapper {
+    position: absolute;
+    top: 3rem;
+}
+</style>
