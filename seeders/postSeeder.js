@@ -200,6 +200,7 @@ async function getUsersAndCreatePosts() {
   let posts = [];
   if (users) {
     for (let user of users) {
+      user._id = user._id.toString();
       posts = [...posts, ...generatePosts(user)];
     }
   }
