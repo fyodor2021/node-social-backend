@@ -10,7 +10,7 @@ const cookieParser = require('cookie-parser')
 
 //middleware and route definitions;
 
-app.use(cors({  origin: [process.env.ORIGIN_URL],
+app.use(cors({  origin: [process.env.INTERNAL_URL],
     credentials: true,}));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());

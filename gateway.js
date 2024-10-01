@@ -4,7 +4,7 @@ const { createProxyMiddleware } = require("http-proxy-middleware");
 const app = express();
 const cors = require('cors')
 app.use(express.static('frontend/dist'))
-app.use(cors({  origin: [process.env.ORIGIN_URL],
+app.use(cors({  origin: [process.env.EXTERNAL_URL],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   'Access-Control-Allow-Headers': 'Authorization',

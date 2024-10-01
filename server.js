@@ -28,7 +28,7 @@ app.use(bodyParser.urlencoded({extended: true,
 
 }));
 app.use(bodyParser.json());
-app.use(cors({  origin: [process.env.ORIGIN_URL],
+app.use(cors({  origin: [process.env.INTERNAL_URL],
   credentials: true,}));
 
 apiv1.use('/user', userRouter)
