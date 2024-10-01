@@ -31,6 +31,9 @@ postRouter.post(
   async (req, res) => {
     if (req.body) {
       const postRequestJson = JSON.parse(req.body.post);
+      console.log(postRequestJson)
+      console.log('im here', req.body)
+  
       const postRequest = {
         user: {
           _id: postRequestJson.user._id,
@@ -42,7 +45,8 @@ postRouter.post(
       };
       const post = new postModel(postRequest);
       if (req.file) {
-        post.fileNames = req.file.filename;
+        console.log(req.file)
+        post.fileName = req.file.filename;
       }
       await post.save();
       res.sendStatus(201);
@@ -67,9 +71,8 @@ postRouter.get("/id", async (req, res) => {
 });
 
 postRouter.get("/user/id/", authenticateToken, async (req, res) => {
-  console.log(req.query);
   const posts = await postModel
-    .find({ "user._id": new mongoose.Types.ObjectId(req.query.contentUserId) })
+    .find({ "user._id": req.query.contentUserId })
     .skip(req.query.offset)
     .limit(3)
     .exec();
@@ -108,6 +111,7 @@ postRouter.put(
   upload.single("image"),
   async (req, res) => {
     const postRequestJson = JSON.parse(req.body.post);
+
     if (postRequestJson.user && postRequestJson.content) {
       const [user, post] = await Promise.all([
         userModel

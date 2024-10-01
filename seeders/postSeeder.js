@@ -10,6 +10,7 @@ function generatePosts(user) {
         _id: user._id,
         fname: user.fname,
         lname: user.lname,
+        email: user.email,
       },
       content:
         '"Success is not final, failure is not fatal: It is the courage to continue that counts." – Winston Churchill. Stay motivated and keep pushing forward, no matter the obstacles you face. 🚀💪 #Inspiration #MotivationMonday',
@@ -21,6 +22,7 @@ function generatePosts(user) {
         _id: user._id,
         fname: user.fname,
         lname: user.lname,
+        email: user.email,
       },
       fileName: "honey.jpg",
       content:
@@ -32,6 +34,7 @@ function generatePosts(user) {
         _id: user._id,
         fname: user.fname,
         lname: user.lname,
+        email: user.email,
       },
       fileName: "water.jpg",
       content:
@@ -43,6 +46,7 @@ function generatePosts(user) {
         _id: user._id,
         fname: user.fname,
         lname: user.lname,
+        email: user.email,
       },
       fileName: "film-set.png",
 
@@ -55,6 +59,7 @@ function generatePosts(user) {
         _id: user._id,
         fname: user.fname,
         lname: user.lname,
+        email: user.email,
       },
       fileName: "customer.jpeg",
 
@@ -67,6 +72,7 @@ function generatePosts(user) {
         _id: user._id,
         fname: user.fname,
         lname: user.lname,
+        email: user.email,
       },
       fileName: "webinar.jpeg",
 
@@ -79,6 +85,7 @@ function generatePosts(user) {
         _id: user._id,
         fname: user.fname,
         lname: user.lname,
+        email: user.email,
       },
       fileName: "book.jpg",
       content:
@@ -90,6 +97,7 @@ function generatePosts(user) {
         _id: user._id,
         fname: user.fname,
         lname: user.lname,
+        email: user.email,
       },
       fileName: "weekend.jpg",
 
@@ -102,6 +110,7 @@ function generatePosts(user) {
         _id: user._id,
         fname: user.fname,
         lname: user.lname,
+        email: user.email,
       },
       fileName: "learning.jpg",
       content:
@@ -113,6 +122,7 @@ function generatePosts(user) {
         _id: user._id,
         fname: user.fname,
         lname: user.lname,
+        email: user.email,
       },
       fileName: "habit.jpg",
 
@@ -125,6 +135,7 @@ function generatePosts(user) {
         _id: user._id,
         fname: user.fname,
         lname: user.lname,
+        email: user.email,
       },
       fileName: "phone-battery.png",
 
@@ -137,6 +148,7 @@ function generatePosts(user) {
         _id: user._id,
         fname: user.fname,
         lname: user.lname,
+        email: user.email,
       },
       fileName:"thinker.jpeg",
 
@@ -149,6 +161,7 @@ function generatePosts(user) {
         _id: user._id,
         fname: user.fname,
         lname: user.lname,
+        email: user.email,
       },
       fileName: "dog.jpg",
 
@@ -158,9 +171,10 @@ function generatePosts(user) {
     }),
     new postModel({
       user: {
-        _id: user._id,
+        _id: user._id.toString(),
         fname: user.fname,
         lname: user.lname,
+        email: user.email,
       },
       fileName: "weekend.jpg",
       content:

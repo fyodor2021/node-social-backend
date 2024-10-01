@@ -103,7 +103,7 @@ const handleSubmitPost = (e) => {
             }
         }).then(res => {
             if (res.status === 201) {
-                // window.location.reload();
+                window.location.reload();
             }
         }).catch(error => {
             valMessageStore.setValMessage('Please tell us more...')
