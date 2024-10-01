@@ -2,9 +2,13 @@ require("dotenv").config();
 const express = require("express");
 const { createProxyMiddleware } = require("http-proxy-middleware");
 const app = express();
-
+const cors = require('cors')
 app.use(express.static('frontend/dist'))
-
+app.use(cors({  origin: [process.env.ORIGIN_URL],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  'Access-Control-Allow-Headers': 'Authorization',
+  credentials: true,}));
 
 app.use(
   "/api/v1/auth",

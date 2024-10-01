@@ -34,7 +34,7 @@ mongoose
 try {
   var io = socketio(expressServer, {
     cors: {
-      origin: ["http://localhost:8080", "http://localhost:3000"],
+      origin: [process.env.ORIGIN_URL],
       credentials: true,
     },
   });

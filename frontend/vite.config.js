@@ -5,11 +5,6 @@ import Icons from 'unplugin-icons/vite'
 export default defineConfig({
   plugins: [vue(), Icons()],
   server: {
-    port: 3000,
-    //   // rewrite: (pathname) => {
-    //   //   return pathname.replace(/^\/api/,'')
-    //   // }
-    // },
     watch: {
       usePolling: true,
     },
