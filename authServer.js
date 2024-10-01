@@ -7,10 +7,12 @@ const bodyParser = require('body-parser');
 const cors = require('cors')
 const mongoose = require('mongoose')
 const cookieParser = require('cookie-parser')
-
+const https = require('https')
+const fs = require('fs')
+const path = require('path')
 //middleware and route definitions;
 
-app.use(cors({  origin: [process.env.INTERNAL_URL],
+app.use(cors({  origin: process.env.ORIGIN_URL,
     credentials: true,}));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
@@ -26,4 +28,12 @@ mongoose.connect(process.env.MONGO_BASE_URL,{
 }).then(console.log('connected'))
 .catch(error => console.log(error))
 
-app.listen(3002, () => console.log('auth server listening on port 3002'))
+const httpsServer = https.createServer({
+    key:fs.readFileSync(path.join(__dirname, 'certs', 'key.pem')),
+    cert:fs.readFileSync(path.join(__dirname, 'certs', 'cert.pem')),
+  
+  } , app)
+  
+  
+  httpsServer.listen(3002, () => console.log('authserver started 3002'))
+  

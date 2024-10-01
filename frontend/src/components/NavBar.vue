@@ -53,7 +53,6 @@ onMounted(() => {
                 <img :src="authStore.signedProfilePic ? authStore.signedProfilePic : profilePic">
             </div>
             <div class="flex">
-
                 <i @click="() => displayStore.toggleCreateView()" class="pi pi-plus w-12 text-3xl m-2"></i>
 
                 <i @click="() => router.push('/')" :class="`pi pi-home ${router.currentRoute.value.path === '/' ? 'text-gray-400' : ''} w-12 text-3xl m-2`"></i>

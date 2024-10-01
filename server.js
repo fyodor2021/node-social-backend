@@ -10,12 +10,14 @@ const bodyParser = require('body-parser');
 const postRouter = require('./routes/posts.js')
 const commentRouter = require('./routes/comments.js')
 require('dotenv').config();
+const https = require('https')
+const fs = require('fs')
+const path = require('path')
 const cors = require('cors')
 const cookieParser = require('cookie-parser');
 const notiRouter = require('./routes/notifications.js');
 const Redis = require("redis");
 const likeRouter = require('./routes/likes.js');
-const authenticateToken = require('./middleware/tokenAuthFilter.js');
 const redisClient = Redis.createClient({url: 'redis://127.0.0.1:6379'});
 (async () => {
   await redisClient.connect()
@@ -28,7 +30,7 @@ app.use(bodyParser.urlencoded({extended: true,
 
 }));
 app.use(bodyParser.json());
-app.use(cors({  origin: [process.env.INTERNAL_URL],
+app.use(cors({  origin: process.env.ORIGIN_URL,
   credentials: true,}));
 
 apiv1.use('/user', userRouter)
@@ -50,6 +52,13 @@ mongoose.connect(process.env.MONGO_BASE_URL,{
      }
 }).then(console.log('connected'))
 .catch(error => console.log(error))
-app.listen(3001, () =>{
-    console.log('node server lisening on 3001')
-})
+
+
+const httpsServer = https.createServer({
+  key:fs.readFileSync(path.join(__dirname, 'certs', 'key.pem')),
+  cert:fs.readFileSync(path.join(__dirname, 'certs', 'cert.pem')),
+
+} , app)
+
+
+httpsServer.listen(3001, () => console.log('server started 3001' ))

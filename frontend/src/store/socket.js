@@ -13,17 +13,21 @@ export const useSocketStore = defineStore("socket", () => {
     socket.value = value;
   }
   async function connectToSocket(token) {
-    await setSocket(
-      io("http://localhost:3003", {
-        extraHeaders: {
-          Authorization: `Bearer ${token}`,
-        },
-        withCredentials: true,
-        pingInterval: 2000,
-        pingTimeout: 5000,
-      })
-    );
-  }
+    try{
+      setSocket(
+        io({
+          extraHeaders: {
+            Authorization: `Bearer ${token}`,
+          },
+          withCredentials: true,
+          pingInterval: 2000,
+          pingTimeout: 5000,
+        })
+      );
+    }catch(err){
+      console.log(err.toString())
+    }
+    }
   function toggleNewMessageAlert() {
     newMessageAlert.value = false;
   }

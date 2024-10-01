@@ -9,9 +9,23 @@ const userModel = require("./models/User.js");
 const notiModel = require("./models/Notification.js");
 const messageModel = require("./models/Message.js");
 const followModel = require("./models/Follow.js");
-const expressServer = app.listen(3003, () =>
-  console.log("chat server listening on port 3003")
-);
+const https = require('https')
+const fs = require('fs')
+const path = require('path')
+
+const httpsServer = https.createServer({
+  key:fs.readFileSync(path.join(__dirname, 'certs', 'key.pem')),
+  cert:fs.readFileSync(path.join(__dirname, 'certs', 'cert.pem')),
+
+} , app)
+
+
+httpsServer.listen(3003, () => 
+  console.log('ioserver started 3003'))
+
+
+
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 const Redis = require("redis");
@@ -32,9 +46,9 @@ mongoose
   .then(console.log("connected"))
   .catch((error) => console.log(error));
 try {
-  var io = socketio(expressServer, {
+  var io = socketio(httpsServer, {
     cors: {
-      origin: [process.env.INTERNAL_URL],
+      origin: process.env.ORIGIN_URL,
       credentials: true,
     },
   });

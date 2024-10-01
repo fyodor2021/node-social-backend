@@ -18,8 +18,9 @@ export const useAuthStore = defineStore("auth",() => {
     signedProfilePic.value = signedUrl
   };
   const  getLoggedUser = async () => {
-      await axios.get("http://localhost:3002/api/v1/auth/user", {
+      await axios.get("/auth/user", {
         withCredentials: true,
+        
       }).then(res => {
         if(res && res.status === 200){
           setToken(res.data.token);
