@@ -19,7 +19,7 @@ const handleSubmit = async () => {
     email: form.email, 
     password : form.password
   }
-  const response = await axios.post('http://localhost:3002/api/v1/auth/login',userCred)
+  const response = await axios.post('/auth/login',userCred)
   if(response && response.status === 200 && response.data ) {
     authStore.setToken(response.data.token)
     authStore.setFname(response.data.user.fname)

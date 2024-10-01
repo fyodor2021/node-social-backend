@@ -9,7 +9,7 @@ import { useSocketStore } from "./store/socket";
 import axios from "axios";
 import ClickOutside from "@/directives/ClickOutside";
 import '@vue/compiler-sfc'
-axios.defaults.baseURL = "http://localhost:3001/api/v1";
+axios.defaults.baseURL = "/api/v1";
 
 axios.interceptors.request.use((req) => {
   const authStore = useAuthStore();

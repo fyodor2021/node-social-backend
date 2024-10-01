@@ -22,7 +22,7 @@ const handleSubmit = () => {
         passwordRetype: form.passwordRetype
     }
     console.log(userCred)
-    const response = axios.post('http://localhost:3001/api/v1/user/signup', userCred).then((res) => {
+    const response = axios.post('/user/signup', userCred).then((res) => {
         if(res.status === 201) {
             valMessageStore.setValMessage(res.data)
             router.push('/login')

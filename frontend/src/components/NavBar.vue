@@ -25,7 +25,7 @@ const handleNotiClick = () => {
     state.newNoti = false
 }
 const handleLogout = () => {
-    axios.delete('http://localhost:3002/api/v1/auth/logout').then(res => {
+    axios.delete('/auth/logout').then(res => {
         if (res && res.status === 200) {
             router.go();
         }
