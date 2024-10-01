@@ -6,7 +6,7 @@ const notiStore = useNotiStore();
 const displayStore = useDisplayStore();
 </script>
 <template>
-    <div class="container">
+    <div class="n-container">
         <div class="triangle ml-3 mr-3"></div>
         <div class="list-container"
             v-if="notiStore.notifications.length > 0">
@@ -19,7 +19,7 @@ const displayStore = useDisplayStore();
     </div>
 </template>
 <style scoped>
-.container {
+.n-container {
     display: flex;
     flex-direction: column;
     min-width: 21vw;

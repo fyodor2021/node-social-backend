@@ -6,7 +6,7 @@ import router from '@/router'
 import { useDisplayStore } from '@/store/display';
 import NotificationView from '@/views/NotificationView.vue';
 import { useNotiStore } from '@/store/notifications';
-import { reactive, watch } from 'vue'
+import { onMounted, reactive, watch } from 'vue'
 import { storeToRefs } from 'pinia';
 import { useAuthStore } from '@/store/auth';
 import axios from 'axios'
@@ -41,9 +41,12 @@ watch(newMessageAlert, (newValue, oldValue) => {
         socketStore.newMessageAlert = false
     }
 }, { deep: true })
+onMounted(() => {
+    console.log(router.currentRoute.value.path)
+})
 </script>
 <template>
-    <div class="container">
+    <div class="n-b-container">
         <div v-if="authStore.token" class="wrapper">
             <div class="profile-pic-container"
                 @click="router.push({ name: 'userDetails', params: { userId: authStore._id } })">
@@ -53,14 +56,14 @@ watch(newMessageAlert, (newValue, oldValue) => {
 
                 <i @click="() => displayStore.toggleCreateView()" class="pi pi-plus w-12 text-3xl m-2"></i>
 
-                <i @click="() => router.push('/')" class="pi pi-home w-12 text-3xl m-2"></i>
+                <i @click="() => router.push('/')" :class="`pi pi-home ${router.currentRoute.value.path === '/' ? 'text-gray-400' : ''} w-12 text-3xl m-2`"></i>
 
                 <i @click="() => displayStore.toggleSearchView()"
                     class="pi pi-search w-12 text-3xl m-2 2xl:hidden "></i>
 
                 <div class="relative" v-click-outside="() => displayStore.notiView = false">
 
-                    <i class="pi pi-bell w-12 text-3xl m-2 relative" @click="handleNotiClick"></i>
+                    <i :class="`pi pi-bell ${displayStore.notiView ? 'text-gray-400' : ''} w-12 text-3xl m-2 relative`" @click="handleNotiClick"></i>
 
                     <div class="notification-panel">
                         <NotificationView v-if="displayStore.notiView" />
@@ -71,12 +74,12 @@ watch(newMessageAlert, (newValue, oldValue) => {
 
                 <span class="relative">
                     <RouterLink to="/chat" @click="() => socketStore.newMessageAlert = false"
-                        class="pi pi-send w-12 text-3xl m-2 cursor-pointer "></RouterLink>
+                        :class="`pi pi-send w-12 text-3xl m-2 cursor-pointer ${router.currentRoute.value.path === '/chat' ? 'text-gray-400' : ''}`"></RouterLink>
                     <span v-if="socketStore.newMessageAlert"
                         class="bg-red-500 rounded absolute w-2 h-2 top-2 right-4"></span>
                 </span>
                 <div class="relative" v-click-outside="() => displayStore.navOptionList = false">
-                    <i class="pi pi-ellipsis-v w-12 text-3xl m-2 cursor-pointer relative"
+                    <i :class="`pi pi-ellipsis-v ${displayStore.navOptionList ? 'text-gray-400' : ''} w-12 text-3xl m-2 cursor-pointer relative`"
                         @click="() => displayStore.toggleNavOptionList()"></i>
                     <div v-if="displayStore.navOptionList" class="options-container">
                         <div class="triangle ml-4 mr-4"></div>
@@ -179,7 +182,7 @@ watch(newMessageAlert, (newValue, oldValue) => {
 
     .options-container {
         align-items: flex-end;
-        right: 1.4em;
+        right: 1.5em;
     }
     .notification-panel{
         right: 9.8em
@@ -190,7 +193,7 @@ watch(newMessageAlert, (newValue, oldValue) => {
 }
 
 @media only screen and (max-width: 1000px) {
-    .container {
+    .n-b-container {
         width: 100% !important;
         margin: 0 !important;
     }

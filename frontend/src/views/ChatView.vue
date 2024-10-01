@@ -131,7 +131,7 @@ onBeforeUnmount(() => {
 
 </script>
 <template>
-    <div class="container">
+    <div class="c-container">
         <div class="side-wrapper">
             <div class="name-search-container">
                 <div>
@@ -172,7 +172,7 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.container {
+.c-container {
     max-width: 100vw;
     display: flex;
     justify-content: center;
@@ -242,7 +242,7 @@ onBeforeUnmount(() => {
     display: none;
 } */
 @media only screen and (max-width: 1520px) {
-    .container {
+    .c-container {
         display: flex;
         flex-direction: column;
 

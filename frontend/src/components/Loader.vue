@@ -17,9 +17,9 @@ defineProps({
 <style scoped>
 .wrapper {
     padding: .5rem;
-    width: 3%;
     margin: 0 auto;
-    margin-top: 1rem;
+    width: 55px;
+    margin-top: 10rem;
     outline: 1px solid rgba(0, 0, 0, 0.295);
     background-color: rgba(255, 255, 255, 0.411);
     border-radius: 99999rem;

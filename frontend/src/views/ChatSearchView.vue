@@ -73,7 +73,7 @@ const handleSendPost = () => {
 </script>
 
 <template>
-    <div class="container">
+    <div class="c-s-container">
         <div class="wrapper" ref="chatSearch" v-click-outside="handleToggleChatSearch">
             <header class="title">
                 New Message
@@ -91,19 +91,19 @@ const handleSendPost = () => {
                     <div class="text-gray-500 font-bold text-2xl p-2">Let's start chatting!</div>
                 </div>
             </div>
-            <button v-if="message" @click="handleSendPost" class="button w-full rounded-none">
-                Send
+            <button v-if="message" @click="handleSendPost" class="button rounded-b-2xl w-full rounded-none">
+                    Send
             </button>
         </div>
     </div>
 </template>
 
 <style scoped>
-.container {
-    width: 100vw !important ;
-    height: 100vh ;
+.c-s-container {
+    width: 100vw;
+    height: 100vh;
     background-color: rgba(0, 0, 0, 0.301);
-    position: fixed !important;
+    position: fixed; 
     top: 0;
     left: 0;
     z-index: 99999;
@@ -114,12 +114,12 @@ const handleSendPost = () => {
 }
 
 .wrapper {
-    width: 100vw;
-    max-width: 800px;
-    border-radius: .5rem;
+    width: 50%;
+    height: 60%;
     box-shadow: 0px 0px 20px #00000073;
+    border-radius: .5rem;
     border-radius: 1rem;
-    overflow: hidden;
+    
 }
 
 .title {
@@ -130,6 +130,8 @@ const handleSendPost = () => {
     padding: .5rem;
     justify-content: center;
     border-bottom: 1px solid black;
+    border-radius: 1rem 1rem 0 0;
+
 }
 
 .user-list {
@@ -137,11 +139,14 @@ const handleSendPost = () => {
     border-top: 1px solid black;
     overflow: auto;
     padding: 1rem;
+    height: 100%;
+    
 }
 
 .user-list::-webkit-scrollbar {
     display: none;
 }
+
 
 .user-list>img {
     width: 10px;

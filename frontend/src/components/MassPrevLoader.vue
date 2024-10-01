@@ -2,12 +2,12 @@
 import logo from '@/assets/img/company-logo.png'
 </script>
 <template>
-    <div class="container">
+    <div class="m-p-l-container">
         <img :src="logo" class="logo  animate" />
     </div>
 </template>
 <style scoped>
-.container {
+.m-p-l-container {
     width: 100vw;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.555);

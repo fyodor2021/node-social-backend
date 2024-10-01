@@ -41,16 +41,16 @@ const toggleSend = (postResponse) => {
 }
 </script>
 <template>
-  <ChatSearchView  v-if="state.displaySend && state.selectedPostForAction" :message="state.selectedPostForAction" :handleToggleChatSearch="() => state.displaySend = !state.displaySend" />
-  <CreateEditView v-if='state.displayShare && state.selectedPostForAction' :isShare="true" :postResponse="state.selectedPostForAction"
-    :toggleFunction="toggleShare" />
-  <CreateEditView v-if='state.displayEdit && state.selectedPostForAction' :postResponse="state.selectedPostForAction" :toggleFunction="toggleEdit" />
-  <Post v-for="postResponse of posts" :key="postResponse.post._id"
-   :postResponse="postResponse" 
-   :sameUser="sameUser" 
-   :user="user" 
-   :toggleEdit="toggleEdit"
-   :toggleShare="toggleShare"
-   :toggleSend="toggleSend"
-   />
+    <ChatSearchView  v-if="state.displaySend && state.selectedPostForAction" :message="state.selectedPostForAction" :handleToggleChatSearch="() => state.displaySend = !state.displaySend" />
+    <CreateEditView v-if='state.displayShare && state.selectedPostForAction' :isShare="true" :postResponse="state.selectedPostForAction"
+      :toggleFunction="toggleShare" />
+    <CreateEditView v-if='state.displayEdit && state.selectedPostForAction' :postResponse="state.selectedPostForAction" :toggleFunction="toggleEdit" />
+    <Post v-for="postResponse of posts" :key="postResponse.post._id"
+     :postResponse="postResponse" 
+     :sameUser="sameUser" 
+     :user="user" 
+     :toggleEdit="toggleEdit"
+     :toggleShare="toggleShare"
+     :toggleSend="toggleSend"
+     />
 </template>

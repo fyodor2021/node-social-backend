@@ -17,18 +17,8 @@ const openCommentFunc = (id) => {
 }
 </script>
 <template>
-  <div class="container">
     <Comment  v-for="comment in comments" :key="comment._id" :commentResponse="comment" :openCommentFunc="openCommentFunc" :openComment="state.openComment"/>
-  </div>
 </template>
 <style scoped>
-.container {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
+
 </style>

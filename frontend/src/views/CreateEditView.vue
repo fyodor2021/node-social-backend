@@ -118,9 +118,7 @@ const handleImageRemove = () => {
 
 </script>
 <template>
-
-
-    <div class="container editor text-gray-800 border border-gray-300 p-4 shadow-lg ">
+    <div class="c-e-container text-gray-800 border border-gray-300 p-4 shadow-lg ">
         <form @submit.prevent="handleSubmitPost" enctype="multipart/form-data" class="wrapper" ref="element"
             v-click-outside="toggleFunction">
             <ContentUser />
@@ -172,14 +170,15 @@ const handleImageRemove = () => {
     </div>
 </template>
 <style scoped>
-.container {
+.c-e-container {
     position: fixed;
     height: 100vh;
-    max-width: 100vw;
+    width: 100vw;
     z-index: 9999;
     background-color: rgba(0, 0, 0, 0.411);
     display: flex;
     top: 0;
+    left: 0;
     justify-content: center;
     align-items: center;
     margin: 0;

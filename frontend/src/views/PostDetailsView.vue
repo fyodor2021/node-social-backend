@@ -72,7 +72,7 @@ onUnmounted(() => {
 <template>
     <div v-if="state.postResponse && state.isLoaded" class="mt-28 h-full w-full">
         <div class="w-full flex xl:justify-center">
-            <div class="comment-list-container">
+            <div class="p-d-container">
                 <Post :postResponse="state.postResponse" />
                 <ReplyBox :contentId="props.postId" />
                 <CommentList v-if="state.comments" :comments="state.comments" />
@@ -83,15 +83,23 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-
-.comment-list-container {
+/* .container {
+  display: flex;
+  justify-content: center;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+} */
+.p-d-container {
     width: 50%;
     min-width: 800px;
 }
 
 @media only screen and (max-width: 1200px) {
-    .comment-list-container {
-    width: 100%;
+    .p-d-container{
+        width: 100%;
     }
 }
 </style>

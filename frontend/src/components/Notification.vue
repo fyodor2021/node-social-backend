@@ -30,7 +30,7 @@ const handleFollowAccept = () => {
 
 </script>
 <template>
-    <div class="container">
+    <div class="n-container">
         <div class="flex w-full">
             <div class="profile-pic-container pic-container">
                 <img :src="profile" />
@@ -52,7 +52,7 @@ const handleFollowAccept = () => {
     </div>
 </template>
 <style scoped>
-.container {
+.n-container {
     z-index: 999999;
     width: 100%;
     background-color: white;

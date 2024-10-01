@@ -15,7 +15,7 @@ const handleToggleSearch = () => {
 }
 </script>
 <template>
-    <div v-if="displayStore.sidePanel" class="container">
+    <div v-if="displayStore.sidePanel" class="s-p-container">
         <div class="wrapper">
             <div>
                 <img class="company-logo-side" :src="companyLogo" alt="company logo">
@@ -34,7 +34,7 @@ const handleToggleSearch = () => {
 
 </template>
 <style scoped>
-.container {
+.s-p-container {
     min-height: 100vh;
     position: fixed;
     top: 0;
@@ -67,7 +67,7 @@ const handleToggleSearch = () => {
     margin: 15px;
 }
 @media only screen and (max-width: 1520px) {
-  .container {
+  .s-p-container {
     display: none;
   }
 

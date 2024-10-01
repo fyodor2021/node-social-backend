@@ -8,7 +8,7 @@ onMounted(() => {
 console.log(active)
 </script>
 <template>
-    <div ref="page" class="container">
+    <div ref="page" class="p-n-f-container">
         <div class="wrapper">
             <img width="400px" :src="pageNotFound" alt="page not found"/>
         </div>
@@ -17,7 +17,7 @@ console.log(active)
 
 <style scoped>
 
-.container{
+.p-n-f-container{
     height: 100vh;
     width: 100vw;
     position: fixed;

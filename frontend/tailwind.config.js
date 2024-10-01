@@ -9,7 +9,11 @@ export default {
       screens: {
         'xl': '1200px',
         '2xl': '1520px',
-      }
+      },
+      container: {
+        center: false, 
+        padding: '0rem',
+      },
     },
   },
   important: true,

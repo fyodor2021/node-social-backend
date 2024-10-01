@@ -80,79 +80,75 @@ const setEditedComment = (commentResponse) => {
 
 </script>
 <template>
-    <div :class="`container`">
-        <div :class="` wrapper`">
-            <div class="flex justify-between p-2 items-center relative">
-                <ContentUser :contentDate="commentResponse.comment.date" :user="commentResponse.comment.user"
-                    :signedProfilePic="commentResponse.signedProfilePic" />
-                <i v-if="commentResponse.comment.user._id === authStore._id" @click="() => state.displayOptions = !state.displayOptions"
-                    class="pi pi-ellipsis-v text-2xl text-gray-400">
-                </i>
-                <div v-if="state.displayOptions" class="crud-menu">
-                    <div class="triangle f"></div>
-                    <div class="">
-                        <div class="crud-item" @click="() => state.displayEdit = !state.displayEdit">
-                            <div class="w-full pt-1 pb-1 pr-2 pl-2 cursor-pointer flex items-center">
-                                <i class="pi pi-pen-to-square mr-2 text-green-500"></i><span
-                                    class="text-white">Edit</span>
-                            </div>
+    <div :class="` wrapper`">
+        <div class="flex justify-between p-2 items-center relative">
+            <ContentUser :contentDate="commentResponse.comment.date" :user="commentResponse.comment.user"
+                :signedProfilePic="commentResponse.signedProfilePic" />
+            <i v-if="commentResponse.comment.user._id === authStore._id"
+                @click="() => state.displayOptions = !state.displayOptions"
+                class="pi pi-ellipsis-v text-2xl text-gray-400">
+            </i>
+            <div v-if="state.displayOptions" class="crud-menu">
+                <div class="triangle f"></div>
+                <div class="">
+                    <div class="crud-item" @click="() => state.displayEdit = !state.displayEdit">
+                        <div class="w-full pt-1 pb-1 pr-2 pl-2 cursor-pointer flex items-center">
+                            <i class="pi pi-pen-to-square mr-2 text-green-500"></i><span class="text-white">Edit</span>
                         </div>
-                        <div class="crud-item" @click="handleCommentDelete">
-                            <div class="w-full pt-1 pb-1 pr-2 pl-2 cursor-pointer flex items-center">
-                                <i class="pi pi-times-circle mr-2 text-red-500"></i><span
-                                    class="text-white">Delete</span>
-                            </div>
+                    </div>
+                    <div class="crud-item" @click="handleCommentDelete">
+                        <div class="w-full pt-1 pb-1 pr-2 pl-2 cursor-pointer flex items-center">
+                            <i class="pi pi-times-circle mr-2 text-red-500"></i><span class="text-white">Delete</span>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="flex justify-between">
-                <div v-if="!state.displayEdit" @click="handleContentClick" class="cursor-pointer">
-                    <div v-if="!state.editedCommentRes">
-                        <div v-if="state.displayDes || commentResponse.comment.content.length < 150"
-                            class="font-bold text-lg">
-                            {{ commentResponse.comment.content }}
-                        </div>
-                        <div v-else class="font-bold text-lg w-full">
-                            {{ commentResponse.comment.content.slice(0, 150) }}... <span class="text-gray-400">See
-                                More</span>
-                        </div>
+        </div>
+        <div class="flex justify-between">
+            <div v-if="!state.displayEdit" @click="handleContentClick" class="cursor-pointer">
+                <div v-if="!state.editedCommentRes">
+                    <div v-if="state.displayDes || commentResponse.comment.content.length < 150"
+                        class="font-bold text-lg">
+                        {{ commentResponse.comment.content }}
                     </div>
-                    <div v-else>
-                        <div v-if="state.displayDes || state.editedCommentRes.comment.content.length < 150"
-                            class="font-bold text-lg">
-                            {{ state.editedCommentRes.comment.content }}
-                        </div>
-                        <div v-else class="font-bold text-lg w-full">
-                            {{ state.editedCommentRes.comment.content.slice(0, 150) }}... <span class="text-gray-400">See
-                                More</span>
-                        </div>
-                    </div>
-                    <div v-if="commentResponse.signedPostPic" class="image-container">
-                        <img :src="commentResponse.signedPostPic" rel="preload" />
+                    <div v-else class="font-bold text-lg w-full">
+                        {{ commentResponse.comment.content.slice(0, 150) }}... <span class="text-gray-400">See
+                            More</span>
                     </div>
                 </div>
-                <div v-else class="w-full"> 
-                    <ReplyBox :contentId="commentResponse.comment._id" 
-                        :contentLength="state.comments.length" :content="commentResponse.comment.content" :setEditedComment="setEditedComment"/>
+                <div v-else>
+                    <div v-if="state.displayDes || state.editedCommentRes.comment.content.length < 150"
+                        class="font-bold text-lg">
+                        {{ state.editedCommentRes.comment.content }}
+                    </div>
+                    <div v-else class="font-bold text-lg w-full">
+                        {{ state.editedCommentRes.comment.content.slice(0, 150) }}... <span class="text-gray-400">See
+                            More</span>
+                    </div>
                 </div>
-                <LikeComment v-if="!state.displayEdit" :contentResponse="commentResponse" :isComment="true" />
+                <div v-if="commentResponse.signedPostPic" class="image-container">
+                    <img :src="commentResponse.signedPostPic" rel="preload" />
+                </div>
             </div>
-            <div class="w-full flex justify-around">
-                <div v-if="state.displayDes && commentResponse.commentCount > 0" class="tracker"></div>
+            <div v-else class="w-full">
+                <ReplyBox :contentId="commentResponse.comment._id" :contentLength="state.comments.length"
+                    :content="commentResponse.comment.content" :setEditedComment="setEditedComment" />
             </div>
-            <div class="w-full flex justify-center">
-                <div class="content">
-                    <CommentList :key="commentResponse.comment._id" v-if="state.displayDes"
-                        :comments="state.comments" />
-                    <span v-if="state.displayDes
-                        && state.comments.length <= commentResponse.commentCount
-                        && state.comments.length > 0
-                        && state.isLoaded" @click="handleSeeMore" class="text-gray-400 cursor-pointer p-2">See
-                        More...</span>
-                    <ReplyBox :contentId="commentResponse.comment._id" v-if="state.displayDes"
-                        :contentLength="state.comments.length" />
-                </div>
+            <LikeComment v-if="!state.displayEdit" :contentResponse="commentResponse" :isComment="true" />
+        </div>
+        <div class="w-full flex justify-around">
+            <div v-if="state.displayDes && commentResponse.commentCount > 0" class="tracker"></div>
+        </div>
+        <div class="w-full flex justify-center">
+            <div class="content">
+                <CommentList :key="commentResponse.comment._id" v-if="state.displayDes" :comments="state.comments" />
+                <span v-if="state.displayDes
+                    && state.comments.length <= commentResponse.commentCount
+                    && state.comments.length > 0
+                    && state.isLoaded" @click="handleSeeMore" class="text-gray-400 cursor-pointer p-2">See
+                    More...</span>
+                <ReplyBox :contentId="commentResponse.comment._id" v-if="state.displayDes"
+                    :contentLength="state.comments.length" />
             </div>
         </div>
     </div>
@@ -169,12 +165,13 @@ const setEditedComment = (commentResponse) => {
     /* margin-top: 15px; */
 }
 
+
 .content {
     width: 90%;
 }
 
 .wrapper {
-    min-width: 100%;
+    width: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -201,6 +198,5 @@ const setEditedComment = (commentResponse) => {
 
 .crud-item {
     background-color: rgb(0, 0, 0);
-
 }
 </style>

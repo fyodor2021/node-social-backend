@@ -26,7 +26,7 @@ const handleUserSelect = (user) => {
 }
 </script>
 <template>
-    <div class="container editor text-gray-800 border border-gray-300 p-4 shadow-lg ">
+    <div class="search-container editor text-gray-800 border border-gray-300 p-4 shadow-lg ">
         <div class="wrapper" ref="element" v-click-outside="() => displayStore.toggleSearchView()">
             <input v-model="search" @input="onInput" class="search-input" spellcheck="false" placeholder="Search"
                 type="text">
@@ -38,10 +38,11 @@ const handleUserSelect = (user) => {
     </div>
 </template>
 <style scoped>
-.container {
+.search-container {
     position: fixed;
-    max-width: 100vw;
+    width: 100vw;
     height: 100vh;
+
     z-index: 9999;
     top: 0;
     background-color: rgba(0, 0, 0, 0.411);
