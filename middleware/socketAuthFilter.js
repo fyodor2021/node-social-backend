@@ -62,7 +62,8 @@ async function storeSocket(socket, user, next) {
   } else {
     redisClient.setEx(user.email + "Socket", 960000, socket.id);
     socket.user = {
-      _id: user._id
+      _id: user._id,
+      email: user.email
     }
     next();
   }

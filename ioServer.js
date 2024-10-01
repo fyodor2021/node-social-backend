@@ -154,6 +154,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
+    redisClient.del(socket.user.email + 'Socket')
     socket.broadcast.emit("userDisconnected", socket.user._id);
   });
 });
