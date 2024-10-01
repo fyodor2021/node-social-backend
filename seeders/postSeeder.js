@@ -7,7 +7,7 @@ function generatePosts(user) {
   const posts = [
     new postModel({
       user: {
-        _id: user._id,
+        _id: user._id.toString(),
         fname: user.fname,
         lname: user.lname,
         email: user.email,
@@ -19,7 +19,7 @@ function generatePosts(user) {
     }),
     new postModel({
       user: {
-        _id: user._id,
+        _id: user._id.toString(),
         fname: user.fname,
         lname: user.lname,
         email: user.email,
@@ -31,7 +31,7 @@ function generatePosts(user) {
     }),
     new postModel({
       user: {
-        _id: user._id,
+        _id: user._id.toString(),
         fname: user.fname,
         lname: user.lname,
         email: user.email,
@@ -43,7 +43,7 @@ function generatePosts(user) {
     }),
     new postModel({
       user: {
-        _id: user._id,
+        _id: user._id.toString(),
         fname: user.fname,
         lname: user.lname,
         email: user.email,
@@ -56,7 +56,7 @@ function generatePosts(user) {
     }),
     new postModel({
       user: {
-        _id: user._id,
+        _id: user._id.toString(),
         fname: user.fname,
         lname: user.lname,
         email: user.email,
@@ -69,7 +69,7 @@ function generatePosts(user) {
     }),
     new postModel({
       user: {
-        _id: user._id,
+        _id: user._id.toString(),
         fname: user.fname,
         lname: user.lname,
         email: user.email,
@@ -82,7 +82,7 @@ function generatePosts(user) {
     }),
     new postModel({
       user: {
-        _id: user._id,
+        _id: user._id.toString(),
         fname: user.fname,
         lname: user.lname,
         email: user.email,
@@ -94,7 +94,7 @@ function generatePosts(user) {
     }),
     new postModel({
       user: {
-        _id: user._id,
+        _id: user._id.toString(),
         fname: user.fname,
         lname: user.lname,
         email: user.email,
@@ -107,7 +107,7 @@ function generatePosts(user) {
     }),
     new postModel({
       user: {
-        _id: user._id,
+        _id: user._id.toString(),
         fname: user.fname,
         lname: user.lname,
         email: user.email,
@@ -119,7 +119,7 @@ function generatePosts(user) {
     }),
     new postModel({
       user: {
-        _id: user._id,
+        _id: user._id.toString(),
         fname: user.fname,
         lname: user.lname,
         email: user.email,
@@ -132,7 +132,7 @@ function generatePosts(user) {
     }),
     new postModel({
       user: {
-        _id: user._id,
+        _id: user._id.toString(),
         fname: user.fname,
         lname: user.lname,
         email: user.email,
@@ -145,7 +145,7 @@ function generatePosts(user) {
     }),
     new postModel({
       user: {
-        _id: user._id,
+        _id: user._id.toString(),
         fname: user.fname,
         lname: user.lname,
         email: user.email,
@@ -158,7 +158,7 @@ function generatePosts(user) {
     }),
     new postModel({
       user: {
-        _id: user._id,
+        _id: user._id.toString(),
         fname: user.fname,
         lname: user.lname,
         email: user.email,
@@ -200,7 +200,6 @@ async function getUsersAndCreatePosts() {
   let posts = [];
   if (users) {
     for (let user of users) {
-      user._id = user._id.toString();
       posts = [...posts, ...generatePosts(user)];
     }
   }
