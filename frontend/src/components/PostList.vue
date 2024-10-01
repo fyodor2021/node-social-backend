@@ -1,22 +1,56 @@
 <script setup>
+import ChatSearchView from '@/views/ChatSearchView.vue';
 import Post from './Post.vue';
+import CreateEditView from '@/views/CreateEditView.vue';
+import { reactive } from 'vue';
+
 const props = defineProps({
   posts: {
     type: Array,
     required: true,
     default: []
   },
-  sameUser:{
-    type:Boolean,
-    default:false
+  sameUser: {
+    type: Boolean,
+    default: false
   },
-  user:{
+  user: {
     type: Object,
     required: false
   }
 
 });
+const state = reactive({
+  displayEdit: false,
+  displayShare: false,
+  displaySend: false,
+  selectedPostForAction: ''
+})
+const toggleEdit = (postResponse) => {
+  state.selectedPostForAction = postResponse
+  state.displayEdit = false
+}
+const toggleShare = (postResponse) => {
+  state.selectedPostForAction = postResponse
+  state.displayShare = !state.displayShare
+}
+const toggleSend = (postResponse) => {
+  state.selectedPostForAction = postResponse
+  state.displaySend = !state.displaySend
+  console.log(state.displaySend)
+}
 </script>
 <template>
-    <Post v-for="post in posts" :key="post._id" :postResponse="post" :sameUser="sameUser" :user="user"/>
+  <ChatSearchView  v-if="state.displaySend && state.selectedPostForAction" :message="state.selectedPostForAction" :handleToggleChatSearch="() => state.displaySend = !state.displaySend" />
+  <CreateEditView v-if='state.displayShare && state.selectedPostForAction' :isShare="true" :postResponse="state.selectedPostForAction"
+    :toggleFunction="toggleShare" />
+  <CreateEditView v-if='state.displayEdit && state.selectedPostForAction' :postResponse="state.selectedPostForAction" :toggleFunction="toggleEdit" />
+  <Post v-for="postResponse of posts" :key="postResponse.post._id"
+   :postResponse="postResponse" 
+   :sameUser="sameUser" 
+   :user="user" 
+   :toggleEdit="toggleEdit"
+   :toggleShare="toggleShare"
+   :toggleSend="toggleSend"
+   />
 </template>

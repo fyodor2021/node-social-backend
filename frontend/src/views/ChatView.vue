@@ -122,6 +122,7 @@ onMounted(async () => {
         }
     })
 })
+
 onBeforeUnmount(() => {
     chatBox.value.removeEventListener('scroll', chatScrollUp)
     displayStore.toggleSidePanel();
@@ -132,7 +133,7 @@ onBeforeUnmount(() => {
 <template>
     <div class="container">
         <div class="side-wrapper">
-            <div class="name-search-conatiner">
+            <div class="name-search-container">
                 <div>
                     <div>{{ capName(authStore.fname) }}{{ capName(authStore.lname) }}</div>
                 </div>
@@ -155,10 +156,11 @@ onBeforeUnmount(() => {
                 <MessageList :messages="state.messages"
                     :signedProfilePic="state.selectedUser && state.selectedUser.signedProfilePic ? state.selectedUser.signedProfilePic : ''" />
             </div>
-            <form @submit.prevent="handleMessageSubmit" class="flex items-center justify-center w-full p-8">
-                <input v-model="state.input" type="text" placeholder="Type a message..." class="w-full p-2 m-2 rounded-md border 
-                        border-gray-400 focus:outline-none 
-                        focus:border-blue-500 ">
+            <form @submit.prevent="handleMessageSubmit" class="flex items-center justify-center w-full p-8
+            border-gray-400 focus:outline-none 
+                        focus:border-blue-500">
+                <input v-model="state.input" type="text" placeholder="Type a message..."
+                    class="w-full p-2 m-2 rounded-md border">
                 <button class="button">Send</button>
             </form>
         </div>
@@ -200,7 +202,7 @@ onBeforeUnmount(() => {
     top: 10rem;
 }
 
-.name-search-conatiner {
+.name-search-container {
     display: flex;
     color: white;
     justify-content: space-between;
@@ -245,6 +247,7 @@ onBeforeUnmount(() => {
         flex-direction: column;
 
     }
+
     .side-wrapper {
         width: 100%;
         height: 126px;
@@ -253,16 +256,20 @@ onBeforeUnmount(() => {
         margin-top: 115px;
 
     }
-    .chat-user-list{
+
+    .chat-user-list {
         padding: 0;
     }
-    .chat-user-list > *{
+
+    .chat-user-list>* {
         padding: 0 !important;
     }
-    .chat-box{
+
+    .chat-box {
         margin-top: 0 !important
     }
-    .name-search-conatiner {
+
+    .name-search-container {
         font-size: 1rem;
         padding: 0;
         padding-bottom: .10rem;

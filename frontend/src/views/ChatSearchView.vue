@@ -43,7 +43,7 @@ const handleSelectUser = (user) => {
         props.handleSelectUser(user)
         props.handleSelectSearch(user)
         props.handleToggleChatSearch()
-    }else{
+    } else {
         state.selectedUser = user
     }
 }
@@ -86,8 +86,8 @@ const handleSendPost = () => {
                 <ContentUser :isChatView="true" @click="handleSelectUser(user)" v-if="state.usersList"
                     :selected="state.selectedUser._id === user._id" v-for="user in state.usersList" :user="user"
                     :signedProfilePic="user.signedProfilePic" :key="user._id" />
-                <div v-else class="w-full h-full flex justify-start items-center flex-col">
-                    <Envelop class="text-9xl text-gray-300 "/>
+                <div v-else class="w-full flex justify-start items-center flex-col">
+                    <Envelop class="text-9xl text-gray-300" />
                     <div class="text-gray-500 font-bold text-2xl p-2">Let's start chatting!</div>
                 </div>
             </div>
@@ -100,10 +100,10 @@ const handleSendPost = () => {
 
 <style scoped>
 .container {
-    max-width: 100vw;
-    height: 100vh;
+    width: 100vw !important ;
+    height: 100vh ;
     background-color: rgba(0, 0, 0, 0.301);
-    position: fixed;
+    position: fixed !important;
     top: 0;
     left: 0;
     z-index: 99999;
@@ -114,7 +114,8 @@ const handleSendPost = () => {
 }
 
 .wrapper {
-    width: 40vw;
+    width: 100vw;
+    max-width: 800px;
     border-radius: .5rem;
     box-shadow: 0px 0px 20px #00000073;
     border-radius: 1rem;
@@ -134,7 +135,6 @@ const handleSendPost = () => {
 .user-list {
     background-color: white;
     border-top: 1px solid black;
-    height: 50vh;
     overflow: auto;
     padding: 1rem;
 }
@@ -146,5 +146,11 @@ const handleSendPost = () => {
 .user-list>img {
     width: 10px;
 
+}
+
+@media only screen and (max-width:1200px) {
+    .wrapper {
+        min-width: 600px;
+    }
 }
 </style>

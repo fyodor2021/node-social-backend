@@ -63,14 +63,14 @@ const handleLike = async () => {
                 </span>
                 <span class="text-2xl">{{ state.likeCount }}</span>
             </div>
-            <ShareIcon v-if="!isComment" @click="() =>toggleShare()" class="text-3xl cursor-pointer hover:scale-125 duration-300"/>
+            <ShareIcon v-if="!isComment" @click="() => toggleShare(contentResponse)" class="text-3xl cursor-pointer hover:scale-125 duration-300"/>
             <div class="flex items-center">
                 <span @click="" class="hover:scale-125 duration-300">
                     <i class="pi pi-comment text-3xl m-2"></i>
                 </span>
                 <span class="text-2xl">{{ state.commentCount }}</span>
             </div>
-            <div v-if="!isComment"  @click="() => toggleSend()" class="flex items-center">
+            <div v-if="!isComment"  @click="() => toggleSend(contentResponse)" class="flex items-center">
                 <span  class="hover:scale-125 duration-300">
                     <i class="pi pi-send text-3xl m-2"></i>
                 </span>

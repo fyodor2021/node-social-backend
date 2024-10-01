@@ -7,8 +7,6 @@ import { useAuthStore } from '@/store/auth';
 
 import axios from 'axios';
 import { useDisplayStore } from '@/store/display';
-import CreateEditView from '@/views/CreateEditView.vue';
-import ChatSearchView from '@/views/ChatSearchView.vue';
 const props = defineProps({
     postResponse: {
         type: Object,
@@ -23,6 +21,15 @@ const props = defineProps({
     },
     isShare: {
         type: Boolean
+    },
+    toggleSend: {
+        type: Function
+    },
+    toggleShare: {
+        type: Function
+    },
+    toggleEdit: {
+        type: Function
     }
 })
 const canvas = ref();
@@ -30,19 +37,9 @@ const displayStore = useDisplayStore();
 const state = reactive({
     liked: false,
     displayOptions: false,
-    displayEdit: false,
-    displayShare: false,
-    displaySend: false,
+
 })
-const toggleEdit = () => {
-    state.displayEdit = false
-}
-const toggleShare = () => {
-    state.displayShare = !state.displayShare
-}
-const toggleSend = () => {
-    state.displaySend = !state.displaySend
-}
+
 const authStore = useAuthStore();
 const handlePostDelete = () => {
     axios.delete('post/', { params: { postId: props.postResponse.post._id } }).then(res => {
@@ -53,11 +50,6 @@ const handlePostDelete = () => {
 }
 </script>
 <template>
-    <ChatSearchView v-if="state.displaySend" :message="postResponse"
-        :handleToggleChatSearch="() => state.displaySend = !state.displaySend" />
-    <CreateEditView v-if='state.displayShare' :isShare="true" :postResponse="props.postResponse"
-        :toggleFunction="toggleShare" />
-    <CreateEditView v-if='state.displayEdit' :postResponse="props.postResponse" :toggleFunction="toggleEdit" />
     <div :class="`content-container `">
         <div :class="`content-wrapper relative min-w-[800px]`">
             <div class="flex justify-between p-2 items-center">
