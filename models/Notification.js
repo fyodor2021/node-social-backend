@@ -5,16 +5,17 @@ const notiSchema = mongoose.Schema({
         type: Object,
         require: true,
     },
-    receiverId:{
-        type:String,
+    receiver:{
+        type:Object,
         require: true,
-    },
-    requestId:{
-        type:String,
     },
     date: {
         type: Date,
         default: Date.now
+    },
+    content:{
+        type: String,
+        required: true
     },
     type: {
         type: String,

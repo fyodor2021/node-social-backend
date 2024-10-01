@@ -31,8 +31,10 @@ onUnmounted(() => {
 
 </script>
 <template>
-  <div class="mt-28">
-    <Loader v-if="state.isLoading"/>
-    <PostList v-else :posts="state.posts" />
+  <div class="mt-28 ">
+    <div class="xl:w-2/4 mx-auto mt-0 mb-0 w-full">
+      <Loader v-if="state.isLoading"/>
+      <PostList v-else :posts="state.posts" />
+    </div>
   </div>
 </template>

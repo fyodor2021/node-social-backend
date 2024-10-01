@@ -14,7 +14,7 @@ searchRouter.get("/:term",authenticateToken, async (req, res) => {
         { tag: { $regex: req.params.term } },
       ],
     })
-    .limit()
+    .limit(5)
     .exec();
   const userResponse = [];
   for (let user of users) {

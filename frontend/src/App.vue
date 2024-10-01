@@ -12,16 +12,18 @@ import { storeToRefs } from 'pinia';
 const displayStore = useDisplayStore();
 const notiStore = useNotiStore();
 const socketStore = useSocketStore();
-const {connectedUsers}  = storeToRefs(socketStore)
+const { connectedUsers } = storeToRefs(socketStore)
 onMounted(async () => {
   await notiStore.getNotifications();
-  socketStore.setUpUserConnectedListener()
-  socketStore.setUpUserDiconnectedListener()
-  socketStore.setUpNewMessageAlertListener()
-  socketStore.addUserToConnectedUsers()
+  socketStore.setUpUserConnectedListener();
+  socketStore.setUpUserDiconnectedListener();
+  socketStore.setUpNewMessageAlertListener();
+  socketStore.addUserToConnectedUsers();
+  socketStore.setUpNewNotificationListener();
+  socketStore.setUpDeleteNotificationListener();
 })
 watch(connectedUsers.value, (newValue, oldValue) => {
-  console.log({newValue, oldValue})
+  console.log({ newValue, oldValue })
 })
 
 </script>

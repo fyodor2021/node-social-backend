@@ -55,6 +55,9 @@ watch(newMessageAlert, (newValue, oldValue) => {
 
                 <i @click="() => router.push('/')" class="pi pi-home w-12 text-3xl m-2"></i>
 
+                <i @click="() => displayStore.toggleSearchView()"
+                    class="pi pi-search w-12 text-3xl m-2 2xl:hidden "></i>
+
                 <div class="relative" v-click-outside="() => displayStore.notiView = false">
 
                     <i class="pi pi-bell w-12 text-3xl m-2 relative" @click="handleNotiClick"></i>
@@ -75,8 +78,8 @@ watch(newMessageAlert, (newValue, oldValue) => {
                 <div class="relative" v-click-outside="() => displayStore.navOptionList = false">
                     <i class="pi pi-ellipsis-v w-12 text-3xl m-2 cursor-pointer relative"
                         @click="() => displayStore.toggleNavOptionList()"></i>
-                    <div v-if="displayStore.navOptionList" class="options-container" >
-                        <div class="triangle ml-4"></div>
+                    <div v-if="displayStore.navOptionList" class="options-container">
+                        <div class="triangle ml-4 mr-4"></div>
                         <div class="options-wrapper">
                             <div @click="handleLogout" class="options-item w-full p-2  cursor-pointer">
                                 Logout
@@ -111,6 +114,7 @@ watch(newMessageAlert, (newValue, oldValue) => {
     top: 1rem;
     z-index: 30;
     width: 50%;
+    min-width: 800px;
     min-height: 90px;
     margin: 0 auto;
     max-width: 100vw;
@@ -123,10 +127,14 @@ watch(newMessageAlert, (newValue, oldValue) => {
     border-radius: .25rem;
     box-shadow: 0 0 6px 0px #0000003d;
 }
-.options-container{
+
+.options-container {
     position: fixed;
+    display: flex;
+    flex-direction: column;
     width: 13vw;
 }
+
 .options-wrapper {
     width: 100%;
     background-color: white;
@@ -159,6 +167,7 @@ watch(newMessageAlert, (newValue, oldValue) => {
 
 .notification-panel {
     position: fixed;
+
 }
 
 @media only screen and (max-width: 1200px) {
@@ -169,8 +178,15 @@ watch(newMessageAlert, (newValue, oldValue) => {
     }
 
     .options-container {
-        justify-content: flex-end;
+        align-items: flex-end;
+        right: 1.4em;
     }
+    .notification-panel{
+        right: 9.8em
+
+    }
+
+
 }
 
 @media only screen and (max-width: 1000px) {

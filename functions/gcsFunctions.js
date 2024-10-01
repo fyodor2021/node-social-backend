@@ -15,18 +15,20 @@ const getSignedURL = async (fileName) => {
   if (fileName) {
     const savedUrl = await redisClient.get(fileName);
     if (savedUrl) {
+      
       return savedUrl;
     } else {
+      const date = Date.now() + (2 * 60 * 60 * 1000);
       const options = {
         action: "read",
-        expires: Date.now() + 15 * 60 * 10000,
+        expires: date,
       };
       try {
         const [url] = await storage
           .bucket(bucketName)
           .file(fileName)
           .getSignedUrl(options);
-        redisClient.setEx(fileName, options.expires, url);
+        redisClient.setEx(fileName, 2 * 60 * 60, url);
         return url;
       } catch (err) {
         console.log(err);

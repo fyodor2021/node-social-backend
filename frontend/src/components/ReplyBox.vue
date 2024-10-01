@@ -18,6 +18,9 @@ const props = defineProps({
     },
     content: {
         type: String
+    },
+    setEditedComment:{
+        type: Function
     }
 })
 
@@ -62,8 +65,8 @@ const handleEditComment = () => {
         content: state.input
     }
     axios.put('/comment', commentRequest).then(res => {
-            if (res && res.status === 204) {
-                console.log(res)
+            if (res && res.status === 201) {
+                props.setEditedComment(res.data)
             } 
         })
 }

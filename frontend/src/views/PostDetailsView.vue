@@ -1,6 +1,6 @@
 <script setup>
 import router from '@/router';
-import { onMounted, reactive,onUnmounted } from 'vue';
+import { onMounted, reactive, onUnmounted } from 'vue';
 import axios from 'axios'
 import Post from '../components/Post.vue'
 import CommentList from '@/components/CommentList.vue';
@@ -47,7 +47,7 @@ onMounted(() => {
         router.push('/')
     } else {
 
-        axios.get('/post/id', {params: { postId: props.postId}})
+        axios.get('/post/id', { params: { postId: props.postId } })
             .then(res => {
                 state.postResponse = res && res.data
             })
@@ -71,14 +71,10 @@ onUnmounted(() => {
 </script>
 <template>
     <div v-if="state.postResponse && state.isLoaded" class="mt-28 h-full w-full">
-        <Post :postResponse="state.postResponse" />
-        <div class="w-full flex justify-center items-center">
-            <div class="reply-container">
-                <ReplyBox :contentId="props.postId" />
-            </div>
-        </div>
-        <div class="w-full flex justify-center">
+        <div class="w-full flex xl:justify-center">
             <div class="comment-list-container">
+                <Post :postResponse="state.postResponse" />
+                <ReplyBox :contentId="props.postId" />
                 <CommentList v-if="state.comments" :comments="state.comments" />
             </div>
         </div>
@@ -86,22 +82,16 @@ onUnmounted(() => {
     <Loader v-else />
 </template>
 
-<style scoped> 
-.details-wrapper {
-    border-radius: .5rem .5rem 0 0;
-    margin-bottom: 0;
-}
-.comment-list-container{
+<style scoped>
+
+.comment-list-container {
     width: 50%;
     min-width: 800px;
 }
-.reply-container{
-    width: 50%;
-}
-.comment-input {
-    background-color: rgba(0, 0, 0, 0.034);
-}
-.content {
-    margin: 10px
+
+@media only screen and (max-width: 1200px) {
+    .comment-list-container {
+    width: 100%;
+    }
 }
 </style>

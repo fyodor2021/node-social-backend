@@ -8,6 +8,7 @@ const bodyParser = require("body-parser");
 const userModel = require("./models/User.js");
 const notiModel = require("./models/Notification.js");
 const messageModel = require("./models/Message.js");
+const followModel = require("./models/Follow.js");
 const expressServer = app.listen(3003, () =>
   console.log("chat server listening on port 3003")
 );
@@ -43,11 +44,12 @@ try {
 io.use((socket, next) => {
   socketAuthFilter(socket, next);
 });
+
 io.on("connection", (socket) => {
   console.log("\n NEW CONNECTION.", socket.id);
 
   socket.broadcast.emit("connected", socket.user._id);
-  
+
   socket.on("onUserConnectBundle", async (userList) => {
     let onlineUsers = [];
     for (let userId of userList) {
@@ -59,68 +61,59 @@ io.on("connection", (socket) => {
         }
       }
     }
-    io.to(socket.id).emit('connectionBundle',onlineUsers)
+    io.to(socket.id).emit("connectionBundle", onlineUsers);
   });
 
-
-
-
-
-
-
-
-
-
-  
-  socket.on("followCreated", async (data, cb) => {
-    console.log("im at the follow created");
-    console.log(data);
-    if (data.sender && data.receiverId) {
+  socket.on("followCreated", async (data) => {
+    console.log(data.sender, data.receiver);
+    if (data.sender && data.receiver) {
+      const fRequest = await followModel.findOne({
+        "sender._id": new mongoose.Types.ObjectId(data.receiver._id),
+        "receiver._id": new mongoose.Types.ObjectId(data.sender._id),
+      });
       const newNoti = new notiModel({
         sender: data.sender,
-        receiverId: data.receiverId,
-        requestId: data.requestId,
-        type: "request",
+        receiver: data.receiver,
+        content: "Started following you!",
+        type: fRequest ? "request-accepted" : "request",
       });
+      const receiver = await userModel.findOne({ _id: newNoti.receiver._id });
+      const storedSocket = await redisClient.get(receiver.email + "Socket");
       try {
         await newNoti.save();
+        if (storedSocket) {
+          io.to(storedSocket).emit("notification", newNoti);
+        }
       } catch (err) {
         console.log(err);
       }
+    }
+  });
+  socket.on("followDeleted", async (data) => {
+    if (data.senderId && data.receiverId) {
+      const [storedNoti, receiver] = await Promise.all([
+        notiModel.findOne({
+          $and: [
+            { "sender._id": data.senderId },
+            { "receiver._id": data.receiverId },
+          ],
+        }),
+        userModel.findOne({ _id: data.receiverId }).select(["email"]),
+      ]);
+      const storedSocket = await redisClient.get(receiver.email + "Socket");
       try {
-        const receiver = await userModel
-          .findOne({ _id: newNoti.receiverId })
-          .exec();
-        if (receiver.email) {
-          const storedSocket = await redisClient.get(receiver.email + "Socket");
-          if (storedSocket) {
-            cb({
-              status: 200,
-            });
-            await io.to(storedSocket).emit("notification", newNoti);
-          }
+        if (storedSocket) {
+          io.to(storedSocket).emit("deleteNotification", storedNoti);
+          await notiModel.deleteOne(storedNoti);
         }
       } catch (err) {
-        socket.emit("error", "something went wrong");
+        console.log(err);
       }
     }
   });
-
-
-
-
-
-
-
   socket.on("getNotifications", (data) => {
     console.log(data);
   });
-
-
-
-
-
-
 
   socket.on("newMessage", async (data, cb) => {
     // console.log("im here");
@@ -142,17 +135,9 @@ io.on("connection", (socket) => {
     cb({
       status: 200,
     });
-    io.to(senderSocket)
-      .to(receiverSocket)
-      .emit("message", { message });
-      io
-      .to(receiverSocket)
-      .emit("newMessageAlert", {userId: socket.user._id});
+    io.to(senderSocket).to(receiverSocket).emit("message", { message });
+    io.to(receiverSocket).emit("newMessageAlert", { userId: socket.user._id });
   });
-
-
-
-
 
   socket.on("disconnect", () => {
     socket.broadcast.emit("userDisconnected", socket.user._id);

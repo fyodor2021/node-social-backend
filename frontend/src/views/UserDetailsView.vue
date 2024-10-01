@@ -61,7 +61,7 @@ onUnmounted(() => {
 console.log(state)
 </script>
 <template>
-    <div v-if="state.isLoaded">
+    <div v-if="state.isLoaded" class="w-full mx-auto xl:w-2/4 min-w-[800px]">
         <Profile v-if="state.userResponse" :userResponse="state.userResponse" />
         <PostList v-if="state.posts" :posts="state.posts" :sameUser="state.sameUser" :user="state.userResponse.user" />
     </div>

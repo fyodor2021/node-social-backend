@@ -20,7 +20,6 @@ const props = defineProps({
     }
 })
 const state = {
-    newRequest: false,
     followIsLoading: false,
     followedByLoggedUser: props.userResponse.followedByLoggedUser,
     myProfile: ''
@@ -34,112 +33,104 @@ const handleFollowClick = () => {
             lname: authStore.lname,
             email: authStore.email,
         },
-        receiverId: props.userResponse.user._id,
+        receiver: {
+            _id: props.userResponse.user._id,
+            fname: props.userResponse.user.fname,
+            lname: props.userResponse.user.lname,
+            email: props.userResponse.user.email,
+        },
     }
-    if (!state.followedByLoggedUser) {
-        axios.post('connection/request', followRequest).then(res => {
-            if (res && res.status === 201) {
-                console.log('im here')
-                socket.value.emitWithAck('followCreated',
-                    {
-                        sender: followRequest.sender,
-                        receiverId: props.userResponse.user._id,
-                        requestId: res && res.data.requestId
-                    })
-                    .then(res => {
-                        if (res.status === 200) state.followedByLoggedUser = true
-                        props.userResponse.followersCount++
-                        socket.value.on('notification', (data) => {
-                            notiStore.notificationsPush(data)
-                        })
-                        props.userResponse.followersCount++
-                        state.newRequest = true
-                    })
+
+    axios
+        .post('connection/request', followRequest)
+        .then(async res => {
+            switch(res && res.status){
+                case 201:
+                    socket.value.emit('followCreated', followRequest)
+                    state.followedByLoggedUser = true
+                    props.userResponse.followersCount++
+                    break;
+                case 204:
             }
             state.followIsLoading = false
         }).catch(err => {
             console.log('errorrrrrrr')
             console.log(err)
         })
-    } else {
-        console.log('im here')
-        axios.post('connection/request', followRequest).then(res => {
-            if (res && res.status === 204) {
-                state.followedByLoggedUser = false
-                props.userResponse.followersCount--
-            }
-            state.followIsLoading = false
-        })
-    }
+
 }
-console.log(props.userResponse)
+const handleUnfollowClick = () => {
+    const receiver = props.userResponse.user
+    axios.delete('connection/', { params: { receiverId: receiver._id } }).then(res => {
+        if (res && res.status === 204) {
+            state.followedByLoggedUser = false
+            props.userResponse.followersCount--
+            socket.value.emit('followDeleted', {receiverId: receiver._id, senderId: authStore._id})
+        }
+        state.followIsLoading = false
+    })
+}
 onMounted(() => {
     if (props.userResponse.user._id === authStore._id) {
         state.myProfile = true
     } else {
         state.myProfile = false
     }
+
 })
 watch(router.currentRoute, (newRoute, oldRoute) => {
-    // console.log({newRoute,oldRoute
-
-    // })
     if (props.userResponse.user._id === authStore._id) {
         state.myProfile = true
     } else {
         state.myProfile = false
     }
 })
-
 </script>
 <template>
-    <div class="w-full flex justify-center mt-28">
-        <div class="wrapper">
-            <div class="background-container">
-                <img :src="backgroundPic" />
-            </div>
-            <div class="flex justify-around items-center">
-                <div class="relative">
-                    <div class="details relative">
-                        <div :class="`profile-pic-container ${state.myProfile ? 'my-profile' : ''}`">
-                            <img v-if="userResponse.user.signedProfilePic" :src="userResponse.user.signedProfilePic" />
-                            <img v-else :src="profile" />
-                        </div>
-                        <div class="font-bold text-xl">
-                            <div class="name-container">
-                                {{ capName(userResponse.user.fname) }}
-                                {{ capName(userResponse.user.lname) }}
-                            </div>
-                            <div class="mt-2">@{{ userResponse.user.tag }}</div>
-                        </div>
+    <div class="wrapper mt-28">
+        <div class="background-container">
+            <img :src="backgroundPic" />
+        </div>
+        <div class="flex justify-around items-center">
+            <div class="relative">
+                <div class="details relative">
+                    <div :class="`profile-pic-container ${state.myProfile ? 'my-profile' : ''}`">
+                        <img v-if="userResponse.user.signedProfilePic" :src="userResponse.user.signedProfilePic" />
+                        <img v-else :src="profile" />
                     </div>
-                </div>
-                <div class="activity-container">
-                    <div v-if="!state.followIsLoading && authStore._id != userResponse.user._id">
-                        <button v-if="!state.followedByLoggedUser" @click="handleFollowClick"
-                            class="button follow-button">Follow</button>
-                        <button v-else @click="handleFollowClick" class="button follow-button">Following</button>
-                    </div>
-                    <div v-else>
-                        <button class="button follow-button invisible">Follow</button>
-                    </div>
-                    <div class="flex">
-                        <div class="flex text-lg">
-                            <div class="pr-0.5">{{ userResponse.postCount }}</div>
-                            <div> Posts</div>
+                    <div class="font-bold text-xl">
+                        <div class="name-container">
+                            {{ capName(userResponse.user.fname) }}
+                            {{ capName(userResponse.user.lname) }}
                         </div>
-                        <div class="flex text-lg">
-                            <div class="pr-0.5">{{ userResponse.followersCount }}</div>
-                            <div> Followers</div>
-                        </div>
-                        <div class="flex text-lg">
-                            <div class="pr-0.5">{{ userResponse.followingCount }}</div>
-                            <div> Following</div>
-                        </div>
+                        <div class="mt-2">@{{ userResponse.user.tag }}</div>
                     </div>
                 </div>
             </div>
-
+            <div class="activity-container">
+                <div v-if="!state.followIsLoading && authStore._id != userResponse.user._id">
+                    <button v-if="!state.followedByLoggedUser" @click="handleFollowClick"
+                        class="button follow-button">Follow</button>
+                    <button v-else @click="handleUnfollowClick" class="button follow-button">Following</button>
+                </div>
+                <div v-else>
+                    <button class="button follow-button invisible">Follow</button>
+                </div>
+                <div class="flex">
+                    <div class="flex text-lg">
+                        <div class="pr-0.5">{{ userResponse.postCount }}</div>
+                        <div> Posts</div>
+                    </div>
+                    <div class="flex text-lg">
+                        <div class="pr-0.5">{{ userResponse.followersCount }}</div>
+                        <div> Followers</div>
+                    </div>
+                    <div class="flex text-lg">
+                        <div class="pr-0.5">{{ userResponse.followingCount }}</div>
+                        <div> Following</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -149,7 +140,7 @@ watch(router.currentRoute, (newRoute, oldRoute) => {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    width: 50%;
+
     min-width: 625px;
     height: 60vh;
     min-height: 600px;

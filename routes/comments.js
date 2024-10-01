@@ -71,14 +71,13 @@ commentRouter.post("/", authenticateToken, async (req, res) => {
   }
 });
 commentRouter.put("/",authenticateToken,async (req, res) => {
-  console.log('this is the content id you want', req.body.commentId)
     if (req.body.user && req.body.content) {
       const [user, comment] = await Promise.all([
         userModel
           .findOne({ _id: req.body.user._id })
           .select(["_id", "fname", "lname", "email"]),
         commentModel.findOne({ _id: req.body.commentId }),
-      ]);g
+      ]);
       if (user && comment) {
         console.log('this is the comment' , comment)
         try {

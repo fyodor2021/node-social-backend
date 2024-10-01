@@ -6,6 +6,10 @@ export default {
       fontFamily:{
         sans:['Poppins', 'sans-serif']
       },
+      screens: {
+        'xl': '1200px',
+        '2xl': '1520px',
+      }
     },
   },
   important: true,

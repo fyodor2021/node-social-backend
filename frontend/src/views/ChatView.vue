@@ -131,37 +131,29 @@ onBeforeUnmount(() => {
 </script>
 <template>
     <div class="container">
-        <div class="side-container relative">
-            <div class="side-wrapper">
-                <div class="name-search-conatiner">
-                    <div>
-                        <div>{{ capName(authStore.fname) }}{{ capName(authStore.lname) }}</div>
-                    </div>
-                    <i class="pi pi-pen-to-square" @click="handleToggleChatSearch"></i>
+        <div class="side-wrapper">
+            <div class="name-search-conatiner">
+                <div>
+                    <div>{{ capName(authStore.fname) }}{{ capName(authStore.lname) }}</div>
                 </div>
-                <div class="chat-user-list">
-                    <ContentUser :isChatView="true" @click="handleSelectUser(user)"
-                        :selected="state.selectedUser._id === user._id" v-if="state.usersList"
-                        v-for="user in state.usersList" :user="user" :signedProfilePic="user.signedProfilePic"
-                        :key="user._id" :newMessage="socketStore.newMessageAlertSet.has(user._id)"/>
-                </div>
+                <i class="pi pi-pen-to-square" @click="handleToggleChatSearch"></i>
+            </div>
+            <div class="chat-user-list">
+                <ContentUser :isChatView="true" @click="handleSelectUser(user)"
+                    :selected="state.selectedUser._id === user._id" v-if="state.usersList"
+                    v-for="user in state.usersList" :user="user" :signedProfilePic="user.signedProfilePic"
+                    :key="user._id" :newMessage="socketStore.newMessageAlertSet.has(user._id)" />
             </div>
         </div>
-        <div class="flex flex-col w-full">
-            <div class="w-full h-full flex justify-end items-end">
-                <div class="message-list-container relative">
-                    <div class="selected-user">
-                        <ContentUser v-if="state.selectedUser" :isChatView="true" :user="state.selectedUser"
-                            :isOnline='socketStore.connectedUsers.has(state.selectedUser._id)'
-                            :signedProfilePic="state.selectedUser.signedProfilePic ? state.selectedUser.signedProfilePic : ''" />
-                    </div>
-                    <div class="message-list-wrapper" ref="chatBox">
-
-                        <MessageList :messages="state.messages"
-                            :signedProfilePic="state.selectedUser && state.selectedUser.signedProfilePic ? state.selectedUser.signedProfilePic : ''" />
-
-                    </div>
-                </div>
+        <div class="chat-box relative mt-28">
+            <div class="selected-user">
+                <ContentUser v-if="state.selectedUser" :isChatView="true" :user="state.selectedUser"
+                    :isOnline='socketStore.connectedUsers.has(state.selectedUser._id)'
+                    :signedProfilePic="state.selectedUser.signedProfilePic ? state.selectedUser.signedProfilePic : ''" />
+            </div>
+            <div class="message-list-wrapper" ref="chatBox">
+                <MessageList :messages="state.messages"
+                    :signedProfilePic="state.selectedUser && state.selectedUser.signedProfilePic ? state.selectedUser.signedProfilePic : ''" />
             </div>
             <form @submit.prevent="handleMessageSubmit" class="flex items-center justify-center w-full p-8">
                 <input v-model="state.input" type="text" placeholder="Type a message..." class="w-full p-2 m-2 rounded-md border 
@@ -182,32 +174,25 @@ onBeforeUnmount(() => {
     max-width: 100vw;
     display: flex;
     justify-content: center;
-    min-height: 100vh;
-}
-
-.side-container {
-    min-height: 100%;
-    width: 30%;
-    background-color: black;
-
+    flex-direction: row;
+    position: relative;
+    height: 100vh;
 }
 
 .side-wrapper {
+    width: 24%;
+    background-color: black;
     display: flex;
     flex-direction: column;
     justify-content: space-around;
     align-items: center;
     position: relative;
-    height: 100%;
-    width: 100%;
     padding: 1rem;
 }
 
 .wrapper {
-    min-height: 100%;
     display: flex;
     margin-right: .75rem;
-
 }
 
 .user-search-results {
@@ -224,28 +209,24 @@ onBeforeUnmount(() => {
     padding: 10px;
 }
 
-.message-list-container {
+.chat-box {
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
-    align-items: center;
     width: 100%;
     flex: 1 1 0%;
     overflow: auto;
-    height: 77vh;
 }
 
 .message-list-wrapper {
     display: flex;
     width: 100%;
-    height: 85%;
     flex-direction: column-reverse;
     padding: 2rem;
     overflow: auto;
     overflow-anchor: none;
     flex: 1 1 0%;
     position: sticky;
-    background-color: rgba(129, 129, 129, 0.068);
+    background-color: rgba(129, 129, 129, 0.123);
 }
 
 .selected-user {
@@ -253,39 +234,38 @@ onBeforeUnmount(() => {
     color: white;
     font-size: 1.5rem;
     width: 100%;
-    z-index: 9999999;
 }
 
 /* .message-list-wrapper::-webkit-scrollbar{
     display: none;
 } */
-@media only screen and (max-width: 1000px) {
+@media only screen and (max-width: 1520px) {
     .container {
         display: flex;
         flex-direction: column;
 
     }
-
-    .side-container {
-        width: 100%;
-        margin-bottom: 2px;
-        max-height: 140px;
-    }
-
     .side-wrapper {
         width: 100%;
-        height: 136px;
+        height: 126px;
         padding: 0.5rem;
-    }
+        margin-bottom: .25rem;
+        margin-top: 115px;
 
+    }
+    .chat-user-list{
+        padding: 0;
+    }
+    .chat-user-list > *{
+        padding: 0 !important;
+    }
+    .chat-box{
+        margin-top: 0 !important
+    }
     .name-search-conatiner {
         font-size: 1rem;
         padding: 0;
         padding-bottom: .10rem;
-    }
-    .message-list-container{
-    height: 61vh;
-
     }
 }
 </style>

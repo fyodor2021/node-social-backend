@@ -32,7 +32,7 @@ const handleUserSelect = (user) => {
                 type="text">
             <div class="user-list">
                 <ContentUser v-if="state.users" @click="() => handleUserSelect(user)" v-for="user in state.users" :user="user"
-                    :signedUserPic="user.signedUserPic" :key="user._id" />
+                    :signedProfilePic="user.signedProfilePic" :key="user._id" />
             </div>
         </div>
     </div>

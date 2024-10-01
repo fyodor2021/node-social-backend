@@ -21,12 +21,13 @@ const props = defineProps({
 const authStore = useAuthStore();
 const state = reactive({
     liked: false,
-    displayDes: props.closeOrder,
+    displayDes: false,
     comments: [],
     isLoaded: true,
     fullComment: true,
     displayOptions: false,
-    displayEdit: false
+    displayEdit: false,
+    editedCommentRes: '',
 })
 const handleContentClick = () => {
     if (state.displayDes) {
@@ -39,6 +40,7 @@ const handleContentClick = () => {
                 if (res.data) {
                     state.comments = res.data
                     state.isLoaded = true
+                    state.displayDes = true
                 }
             })
         } else {
@@ -69,6 +71,11 @@ const handleCommentDelete = () => {
             }
         })
 }
+const setEditedComment = (commentResponse) => {
+    console.log(commentResponse)
+    state.editedCommentRes = commentResponse
+    state.displayEdit = false
+}
 //v-if="commentResponse.comment.user._id === authStore._id" 
 
 </script>
@@ -78,7 +85,7 @@ const handleCommentDelete = () => {
             <div class="flex justify-between p-2 items-center relative">
                 <ContentUser :contentDate="commentResponse.comment.date" :user="commentResponse.comment.user"
                     :signedProfilePic="commentResponse.signedProfilePic" />
-                <i @click="() => state.displayOptions = !state.displayOptions"
+                <i v-if="commentResponse.comment.user._id === authStore._id" @click="() => state.displayOptions = !state.displayOptions"
                     class="pi pi-ellipsis-v text-2xl text-gray-400">
                 </i>
                 <div v-if="state.displayOptions" class="crud-menu">
@@ -99,15 +106,27 @@ const handleCommentDelete = () => {
                     </div>
                 </div>
             </div>
-            <div class="flex justify-between w-3/4 break-words">
-                <div v-if="!state.displayEdit" @click="handleContentClick" class="p-2 pr-12 pl-12 cursor-pointer">
-                    <div v-if="state.displayDes || commentResponse.comment.content.length < 150"
-                        class="font-bold text-lg w-full">
-                        {{ commentResponse.comment.content }}
+            <div class="flex justify-between">
+                <div v-if="!state.displayEdit" @click="handleContentClick" class="cursor-pointer">
+                    <div v-if="!state.editedCommentRes">
+                        <div v-if="state.displayDes || commentResponse.comment.content.length < 150"
+                            class="font-bold text-lg">
+                            {{ commentResponse.comment.content }}
+                        </div>
+                        <div v-else class="font-bold text-lg w-full">
+                            {{ commentResponse.comment.content.slice(0, 150) }}... <span class="text-gray-400">See
+                                More</span>
+                        </div>
                     </div>
-                    <div v-else class="font-bold text-lg w-full">
-                        {{ commentResponse.comment.content.slice(0, 150) }}... <span class="text-gray-400">See
-                            More</span>
+                    <div v-else>
+                        <div v-if="state.displayDes || state.editedCommentRes.comment.content.length < 150"
+                            class="font-bold text-lg">
+                            {{ state.editedCommentRes.comment.content }}
+                        </div>
+                        <div v-else class="font-bold text-lg w-full">
+                            {{ state.editedCommentRes.comment.content.slice(0, 150) }}... <span class="text-gray-400">See
+                                More</span>
+                        </div>
                     </div>
                     <div v-if="commentResponse.signedPostPic" class="image-container">
                         <img :src="commentResponse.signedPostPic" rel="preload" />
@@ -115,7 +134,7 @@ const handleCommentDelete = () => {
                 </div>
                 <div v-else class="w-full"> 
                     <ReplyBox :contentId="commentResponse.comment._id" 
-                        :contentLength="state.comments.length" :content="commentResponse.comment.content"/>
+                        :contentLength="state.comments.length" :content="commentResponse.comment.content" :setEditedComment="setEditedComment"/>
                 </div>
                 <LikeComment v-if="!state.displayEdit" :contentResponse="commentResponse" :isComment="true" />
             </div>
@@ -155,7 +174,7 @@ const handleCommentDelete = () => {
 }
 
 .wrapper {
-    width: 100%;
+    min-width: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;

@@ -29,7 +29,6 @@ const handleToggleSearch = () => {
                 <div class="item text-2xl"><i class="pi pi-bell"></i>Notifications</div>
                 <RouterLink to="/chat" class="item text-2xl"><i class="pi pi-send"></i>Messages</RouterLink>
             </div>
-
         </div>
     </div>
 
@@ -67,7 +66,7 @@ const handleToggleSearch = () => {
 .item>* {
     margin: 15px;
 }
-@media only screen and (max-width: 1200px) {
+@media only screen and (max-width: 1520px) {
   .container {
     display: none;
   }

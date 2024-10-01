@@ -58,8 +58,8 @@ const handlePostDelete = () => {
     <CreateEditView v-if='state.displayShare' :isShare="true" :postResponse="props.postResponse"
         :toggleFunction="toggleShare" />
     <CreateEditView v-if='state.displayEdit' :postResponse="props.postResponse" :toggleFunction="toggleEdit" />
-    <div :class="`content-container`">
-        <div :class="`content-wrapper relative`">
+    <div :class="`content-container `">
+        <div :class="`content-wrapper relative min-w-[800px]`">
             <div class="flex justify-between p-2 items-center">
                 <ContentUser :postDate="postResponse.post.date"
                     :user="sameUser ? '' : user ? user : postResponse.post.user"

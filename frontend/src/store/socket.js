@@ -1,12 +1,14 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { io } from "socket.io-client";
+import { useNotiStore } from "./notifications";
 
 export const useSocketStore = defineStore("socket", () => {
   const socket = ref(null);
   const connectedUsers = ref(new Set());
   const newMessageAlert = ref(false)
   const newMessageAlertSet = ref(new Set());
+  const notiStore = useNotiStore();
   function setSocket(value) {
     socket.value = value;
   }
@@ -56,6 +58,24 @@ export const useSocketStore = defineStore("socket", () => {
   function addUserToConnectedUsers(userId) {
     connectedUsers.value.add(userId);
   }
+  function setUpNewNotificationListener(){
+    socket.value.on("notification", data => {
+      if (data) {
+        notiStore.notificationsPush(data)
+      }
+    });
+  }
+  function setUpDeleteNotificationListener(){
+    socket.value.on("deleteNotification", data => {
+      if(data){
+        for(let [index,noti] of notiStore.notifications.entries()){
+          if(noti._id === data._id){
+            notiStore.notifications.splice(index, 1)
+          }
+        }
+      }
+    });
+  }
   return { socket, 
     connectedUsers,
     newMessageAlert,
@@ -67,6 +87,8 @@ export const useSocketStore = defineStore("socket", () => {
     setUpUserDiconnectedListener,
     setUpNewMessageAlertListener,
     setUpInitialConnectionBundleEmitter,
-    addUserToConnectedUsers
+    addUserToConnectedUsers,
+    setUpNewNotificationListener,
+    setUpDeleteNotificationListener
   };
 });

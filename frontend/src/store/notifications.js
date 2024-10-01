@@ -16,6 +16,7 @@ export const useNotiStore = defineStore("notifications", () => {
   try{
       const res = await axios.get('/notification/' + authStore._id)
       if(res && res.data){
+        console.log(res.data)
         notifications.value = res.data
       }
   }  catch(err){

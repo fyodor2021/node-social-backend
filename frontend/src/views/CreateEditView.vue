@@ -189,7 +189,7 @@ const handleImageRemove = () => {
 
 .wrapper {
     display: flex;
-    width: 40%;
+    width:800px;
     height: 80%;
     flex-direction: column;
     background-color: rgb(255, 255, 255);

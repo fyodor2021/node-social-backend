@@ -5,9 +5,9 @@ const authenticateToken = require("../middleware/tokenAuthFilter.js");
 const notiRouter = express.Router();
 
 notiRouter.get("/:id",authenticateToken, async (req, res) => {
-  console.log(req.params); 
+  console.log('im in notifications',req.params); 
   const notis = await notiModel
-    .find({receiverId: req.params.id})
+    .find({'receiver._id': req.params.id})
     .limit(5)
     .sort({date: -1})
     .exec();

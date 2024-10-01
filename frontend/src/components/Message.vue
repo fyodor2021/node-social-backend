@@ -27,7 +27,7 @@ const toggleSend = () => {
 <template>
     <ChatSearchView v-if="state.displaySend && message.content.post" :message="message.content"
         :handleToggleChatSearch="() => state.displaySend = !state.displaySend" />
-    <div :class="`container   ${isSent ? 'justify-end' : ''}`">
+    <div :class="`container w-full   ${isSent ? 'justify-end' : ''}`">
         <ForwardIcon v-if="isSent && message.content.post" @click="() => toggleSend()"
             class="text-3xl cursor-pointer hover:scale-125 duration-300 " />
         <div :class="`wrapper`">
@@ -69,7 +69,7 @@ const toggleSend = () => {
     background-color: rgb(0, 0, 0);
     color: rgb(255, 255, 255);
     padding: 1rem;
-    max-width: 400px;
+    width: fit-content;
     white-space: break-spaces;
     border-radius: 1rem;
     overflow-wrap: break-word;
