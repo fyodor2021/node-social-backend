@@ -36,9 +36,8 @@ const userSchema = mongoose.Schema({
     },
     tag: {
         type: String,
-        required: true,
         trim: true,
-        lowercase: true
+        lowercase: true,
     },
     profilePic: {
         type: String,
@@ -48,5 +47,10 @@ const userSchema = mongoose.Schema({
     }
 
 })
-
+userSchema.pre('save', function (next) {
+    if(!this.tag){
+        this.tag = this.fname + this.lname
+    }
+    next();
+})
 module.exports = mongoose.model('user', userSchema)

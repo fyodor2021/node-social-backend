@@ -19,9 +19,11 @@ userRouter.post("/signup", async (req, res) => {
       password: req.body.password,
     });
     try {
+      console.log(user)
       await user.save();
       res.status(201).send("User created successfully");
     } catch (error) {
+      console.log(error.toString())
       if (error.code === 11000) {
         return res.status(409).send("user already exists");
       }
