@@ -48,11 +48,7 @@ const handleMessageSubmit = async () => {
             content: state.input
         }
         axios.post('/message', messageRequest).then(res => {
-            socket.value.emitWithAck('newMessage', { senderId: authStore._id, receiverId: state.selectedUser._id }).then(res => {
-                if (res && res.status === 200) {
-
-                }
-            })
+            socket.value.emit('newMessage', { senderId: authStore._id, receiverId: state.selectedUser._id })
         })
     }
 }
@@ -65,6 +61,7 @@ const handleSelectSearch = (user) => {
     state.selectedUser = user
     state.users = ''
     state.search = ''
+    socketStore.setUpUserOnlineStatusCheck(user._id)
 }
 
 const handleSelectUser = (user) => {
@@ -104,7 +101,6 @@ onMounted(async () => {
                     })
             }
         })
-    displayStore.toggleSidePanel();
     chatBox.value.addEventListener('scroll', chatScrollUp)
     setTimeout(() => {
         chatBox.value.scrollTop = chatBox.value.scrollHeight
@@ -113,6 +109,7 @@ onMounted(async () => {
     socket.value.on('message', (data) => {
         if ((state.selectedUser._id === data.message.sender._id) || (data.message.sender._id === authStore._id)) {
             state.messages = [data.message, ...state.messages]
+            state.input = ''
         } else {
             for (let user in state.usersList) {
                 if (user._id === data.message.sender._id) {
@@ -173,8 +170,9 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .c-container {
-    max-width: 100vw;
+    max-width: 77vw;
     display: flex;
+    margin-left: auto;
     justify-content: center;
     flex-direction: row;
     position: relative;
@@ -182,14 +180,11 @@ onBeforeUnmount(() => {
 }
 
 .side-wrapper {
-    width: 24%;
+    width: 100%;
+    height: 150px;
     background-color: black;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
-    position: relative;
-    padding: 1rem;
+    padding: 0.5rem;
+    margin-bottom: .25rem;
 }
 
 .wrapper {
@@ -231,6 +226,28 @@ onBeforeUnmount(() => {
     background-color: rgba(129, 129, 129, 0.123);
 }
 
+.chat-user-list {
+    flex-direction: row;
+}
+
+.chat-user-list>* {
+    color: white;
+    width: 100%;
+    background-color: rgba(102, 102, 102, 0.185);
+    border-radius: 0.5rem;
+    margin: 0.25rem 0.5rem;
+}
+
+.chat-box {
+    margin-top: 0 !important
+}
+
+.c-container {
+    display: flex;
+    flex-direction: column;
+
+}
+
 .selected-user {
     background-color: black;
     color: white;
@@ -241,38 +258,5 @@ onBeforeUnmount(() => {
 /* .message-list-wrapper::-webkit-scrollbar{
     display: none;
 } */
-@media only screen and (max-width: 1520px) {
-    .c-container {
-        display: flex;
-        flex-direction: column;
-
-    }
-
-    .side-wrapper {
-        width: 100%;
-        height: 126px;
-        padding: 0.5rem;
-        margin-bottom: .25rem;
-        margin-top: 115px;
-
-    }
-
-    .chat-user-list {
-        padding: 0;
-    }
-
-    .chat-user-list>* {
-        padding: 0 !important;
-    }
-
-    .chat-box {
-        margin-top: 0 !important
-    }
-
-    .name-search-container {
-        font-size: 1rem;
-        padding: 0;
-        padding-bottom: .10rem;
-    }
-}
+@media only screen and (max-width: 1200px) {}
 </style>

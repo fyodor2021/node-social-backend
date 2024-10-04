@@ -66,7 +66,7 @@ const handleToggleSearch = () => {
 .item>* {
     margin: 15px;
 }
-@media only screen and (max-width: 1520px) {
+@media only screen and (max-width: 1775px) {
   .s-p-container {
     display: none;
   }

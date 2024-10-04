@@ -29,6 +29,7 @@ export const useAuthStore = defineStore("auth",() => {
           setId(res.data.user._id);
           setProfilePic(res.data.user.signedProfilePic)
           setEmail(res.data.user.email);
+          
         }
       }).catch(err => {
         console.log(err)

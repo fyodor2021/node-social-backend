@@ -1,11 +1,12 @@
 <script setup>
-import { onBeforeMount, reactive, onUnmounted, watch, onUpdated, onMounted } from 'vue';
+import { onBeforeMount, reactive, onUnmounted, watch, onUpdated, onMounted, onRenderTriggered } from 'vue';
 import axios from 'axios'
 import PostList from '@/components/PostList.vue';
 import Profile from '@/components/Profile.vue'
 import Loader from '@/components/Loader.vue';
 import { useAuthStore } from '@/store/auth';
 import router from '@/router';
+import ProfilePicEdit from '@/components/ProfilePicEdit.vue';
 const authStore = useAuthStore();
 const props = defineProps({
     userId: {
@@ -13,12 +14,13 @@ const props = defineProps({
     }
 })
 const state = reactive({
-    userResponse: '',
+    userResponse: {},
     posts: '',
     isLoaded: false,
     sameUser: props.userId === authStore._id ? true : false,
     componentKey: 1,
-    differentData: false
+    differentData: false,
+    profilePicEdit:false
 })
 async function handleScroll(e) {
     if (window.scrollY + window.innerHeight >= document.body.scrollHeight + 112) {
@@ -34,6 +36,7 @@ async function handleScroll(e) {
             })
     }
 }
+
 onMounted(async () => {
     await getUserData(props.userId)
     window.addEventListener('scroll', handleScroll)
@@ -41,6 +44,9 @@ onMounted(async () => {
 console.log(router)
 watch(router.currentRoute, async () => {
     await getUserData(props.userId)
+})
+onUpdated(() => {
+    console.log('i updated')
 })
 async function getUserData(userId) {
     const [userRes, postRes] = await Promise.all([
@@ -61,9 +67,10 @@ onUnmounted(() => {
 console.log(state)
 </script>
 <template>
-    <div v-if="state.isLoaded" class="w-full mx-auto xl:w-2/4 min-w-[800px]">
-        <Profile v-if="state.userResponse" :userResponse="state.userResponse" />
-        <PostList v-if="state.posts" :posts="state.posts" :sameUser="state.sameUser" :user="state.userResponse.user" />
+    <ProfilePicEdit v-if="state.profilePicEdit" :toggleFunction="() => state.profilePicEdit = false" />
+    <div v-if="state.isLoaded" class="w-full mx-auto ">
+        <Profile v-if="state.userResponse" :userResponse="state.userResponse" :toggleProfilePicEdit="() => state.profilePicEdit = !state.profilePicEdit"/>
+        <PostList v-if="state.posts" :posts="state.posts" :sameUser="state.sameUser" :user="state.userResponse.user"  />
     </div>
     <Loader v-else />
 </template>

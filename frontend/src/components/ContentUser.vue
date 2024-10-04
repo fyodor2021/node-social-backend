@@ -3,6 +3,7 @@ import capName from '@/functions/capName';
 import profile from '@/assets/img/profile.png'
 import { useAuthStore } from '@/store/auth';
 import router from '@/router';
+import ProfilePicEdit from './ProfilePicEdit.vue';
 const authStore = useAuthStore();
 const props = defineProps({
     user: {
@@ -33,6 +34,10 @@ const props = defineProps({
     newMessage: {
         type: Boolean,
         default: false
+    },
+    isComment: {
+        type:Boolean,
+        default: false
     }
 })
 const handleUserClick = () => {
@@ -42,14 +47,14 @@ const handleUserClick = () => {
 </script>
 <template>
     <div @click="handleUserClick"
-        :class="`flex items-center  justify-between cursor-pointer p-2 ${selected ? 'bg-black' : ''}`">
-        <div v-if="user" class="flex items-start cursor-pointer ">
-            <div class="profile-pic-container">
+        :class="`flex items-center  justify-between cursor-pointer p-2  ${selected ? 'bg-black' : ''}`">
+        <div v-if="user" class="flex items-center cursor-pointer justify-center ">
+            <div :class="`profile-pic-container ${isComment ? 'w-8 h-8 mr-[6px]' : ''}`">
                 <img v-if="signedProfilePic" :src="signedProfilePic ? signedProfilePic : profile" :alt="user.fname"
                     rel="preload" />
                 <img v-else :src="profile" alt="sara" class="w-20" rel="preload" />
             </div>
-            <div>
+            <div :class="`${isComment ? 'text-[.75rem]' : ''}`">
                 <h1 :class="`font-bold ${selected ? 'text-white' : ''}`"> {{ capName(user.fname) }} {{
                     capName(user.lname) }}</h1>
                 <h2 :class="`text-gray-700 ${selected ? 'text-gray-600' : ''}`">{{ user.tag ? '@' + user.tag : '' }}
@@ -58,7 +63,7 @@ const handleUserClick = () => {
 
             </div>
             <span v-if="isOnline" class="w-2 h-2 bg-green-500 rounded-full m-4"></span>
-            <span v-if="newMessage" class="w-2 h-2 bg-orange-500 rounded-full m-4"></span>
+            <span v-if="newMessage && !selected" class="w-2 h-2 bg-orange-500 rounded-full m-4"></span>
         </div>
         <div @click="() => router.push({ name: 'userDetails', params: { userId: authStore._id } })" v-else
             class="flex items-center">
@@ -70,7 +75,6 @@ const handleUserClick = () => {
         </div>
 
     </div>
-
 </template>
 
 <style></style>

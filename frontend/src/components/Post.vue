@@ -51,7 +51,7 @@ const handlePostDelete = () => {
 </script>
 <template>
     <div :class="`content-container `">
-        <div :class="`content-wrapper relative min-w-[800px]`">
+        <div :class="`content-wrapper relative `">
             <div class="flex justify-between p-2 items-center">
                 <ContentUser :postDate="postResponse.post.date"
                     :user="sameUser ? '' : user ? user : postResponse.post.user"

@@ -1,11 +1,10 @@
 <script setup>
 import logo from '@/assets/img/logo.png'
-import { reactive } from 'vue';
+import { onMounted, reactive } from 'vue';
 import axios from 'axios';
 import { useValMessageStore } from '../store/valMessage'
 import router from '@/router';
 const valMessageStore = useValMessageStore()
-console.log(valMessageStore.valMessage)
 const form = reactive({
     fname: '',
     lname: '',
@@ -13,7 +12,7 @@ const form = reactive({
     password: '',
     passwordRetype: '',
 })
-const handleSubmit = () => {
+const handleSubmit = async () => {
     const userCred = {
         fname: form.fname,
         lname: form.lname,
@@ -21,14 +20,23 @@ const handleSubmit = () => {
         password: form.password,
         passwordRetype: form.passwordRetype
     }
-    console.log(userCred)
-    const response = axios.post('/user/signup', userCred).then((res) => {
-        if(res.status === 201) {
-            valMessageStore.setValMessage(res.data)
+    axios.post('/user/signup', userCred)
+    .then(res => {
+        console.log(res)
+        if(res && res.status === 201 ){
+            valMessageStore.setValMessage('User created Successfully')
             router.push('/login')
+        }
+    }).catch(err => {
+        console.log(err)
+        if (err.response && err.response.data){
+            valMessageStore.setValMessage(err.response.data)
         }
     })
 }
+onMounted(() => {
+    valMessageStore.setValMessage('')
+})
 </script>
 <template>
     <div class="flex min-h-screen flex-col justify-center px-6 py-12 lg:px-8">
@@ -83,12 +91,14 @@ const handleSubmit = () => {
                             Password</label>
                     </div>
                     <div class="mt-2">
-                        <input v-model="form.passwordRetype" id="password-retype" name="password-retype"
-                            type="password" required 
+                        <input v-model="form.passwordRetype" id="password-retype" name="password-retype" type="password"
+                            required
                             class="block w-full p-2 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6">
                     </div>
                 </div>
-                <div><span class="text-red-500">{{ valMessageStore.valMessage }}</span></div>
+                <div class="h-2">
+                    <span class="text-red-500 ">{{ valMessageStore.valMessage }}</span>
+                </div>
 
                 <div>
                     <button type="submit"

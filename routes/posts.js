@@ -11,6 +11,7 @@ const commentModel = require("../models/Comment.js");
 const likeModel = require("../models/Like.js");
 const shuffleArray = require("../functions/shuffleArray.js");
 const authenticateToken = require("../middleware/tokenAuthFilter.js");
+
 const upload = multer({
   storage: multerGoogle.storageEngine({
     autoRetry: true,
@@ -31,9 +32,6 @@ postRouter.post(
   async (req, res) => {
     if (req.body) {
       const postRequestJson = JSON.parse(req.body.post);
-      console.log(postRequestJson)
-      console.log('im here', req.body)
-  
       const postRequest = {
         user: {
           _id: postRequestJson.user._id,

@@ -3,48 +3,76 @@ const userRouter = express.Router();
 const userModel = require("../models/User.js");
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
-const {getSignedURL} = require("../functions/gcsFunctions.js");
+const { getSignedURL, deleteImage } = require("../functions/gcsFunctions.js");
 const authenticateToken = require("../middleware/tokenAuthFilter.js");
 const followModel = require("../models/Follow.js");
 const postModel = require("../models/Post.js");
+const multerGoogle = require("multer-google-storage");
+require("dotenv").config();
+const multer = require("multer");
+
+const upload = multer({
+  storage: multerGoogle.storageEngine({
+    autoRetry: true,
+    acl: {},
+    projectId: process.env.PROJECT_ID,
+    bucket: process.env.BUCKET_NAME,
+    keyFilename: process.env.KEY_FILE_NAME,
+    filename: (req, file, cb) => {
+      const fileNewName = Date.now() + "-" + file.originalname;
+      cb(null, fileNewName);
+    },
+  }),
+});
+
 userRouter.post("/signup", async (req, res) => {
-  if (req.body == null)
-    return res.status(409).send("Please fill the required fields.");
-  if (req.body.password === req.body.passwordRetype) {
-    req.body.password = await bcrypt.hash(req.body.password, 10);
-    const user = new userModel({
-      fname: req.body.fname,
-      lname: req.body.lname,
-      email: req.body.email,
-      password: req.body.password,
-    });
-    try {
-      console.log(user)
-      await user.save();
-      res.status(201).send("User created successfully");
-    } catch (error) {
-      console.log(error.toString())
-      if (error.code === 11000) {
-        return res.status(409).send("user already exists");
+  if (
+    req.body.fname &&
+    req.body.lname &&
+    req.body.email &&
+    req.body.password &&
+    req.body.passwordRetype
+  ) {
+    if (req.body.password === req.body.passwordRetype) {
+      const password = await bcrypt.hash(req.body.password, 10);
+      const user = new userModel({
+        fname: req.body.fname,
+        lname: req.body.lname,
+        email: req.body.email,
+        password: password,
+      });
+      try {
+        await user.save();
+        res.status(201).send("User created successfully");
+      } catch (error) {
+        if (error.code === 11000) {
+          res.status(409).send("user already exists");
+        }
       }
+    } else {
+      res.status(409).send("Passwords entered don't match");
     }
+  } else {
+    res.status(409).send("Please fill the required fields.");
   }
 });
 userRouter.get("/id", authenticateToken, async (req, res) => {
-  console.log(req.query)
+  console.log(req.query);
   if (req.query.visitedUserId && req.query.userId) {
-    const visitedObjectId = new mongoose.Types.ObjectId(req.query.visitedUserId)
+    const visitedObjectId = new mongoose.Types.ObjectId(
+      req.query.visitedUserId
+    );
     const [user, following, followers, postCount] = await Promise.all([
-      userModel.findOne({ _id: visitedObjectId}).exec(),
-      followModel.find({ "sender._id": visitedObjectId}),
+      userModel.findOne({ _id: visitedObjectId }).exec(),
+      followModel.find({ "sender._id": visitedObjectId }),
       followModel.find({ "receiver._id": visitedObjectId }),
       postModel.countDocuments({ "user._id": visitedObjectId }),
     ]);
     if (user) {
-      let followedByLoggedUser = false
-      for(let follower of followers){
-        if(follower.sender._id.toString() === req.query.userId){
-          followedByLoggedUser = true
+      let followedByLoggedUser = false;
+      for (let follower of followers) {
+        if (follower.sender._id.toString() === req.query.userId) {
+          followedByLoggedUser = true;
           break;
         }
       }
@@ -76,4 +104,43 @@ userRouter.get("/id", authenticateToken, async (req, res) => {
     res.sendStatus(404);
   }
 });
+
+userRouter.put(
+  "/profile/pic",
+  [authenticateToken, upload.single("image")],
+  async (req, res) => {
+    const userRequestJson = JSON.parse(req.body.data);
+    console.log(userRequestJson);
+    if (userRequestJson.userId && userRequestJson.imageRemoved != null) {
+      const user = await userModel.findOne({ _id: userRequestJson.userId });
+      if (user) {
+        try {
+          if (user.profilePic) {
+            await deleteImage(user.profilePic);
+          }
+          userModel
+            .findByIdAndUpdate(
+              user,
+              {
+                profilePic: req.file.filename,
+              },
+              { returnOriginal: false }
+            )
+            .then(async (response) => {
+              const sigendProfilePic = await getSignedURL(response.profilePic)
+              res.status(201).json(sigendProfilePic);
+            });
+        } catch (err) {
+          res
+            .status(409)
+            .send("error occured while performing operation", err.toString());
+        }
+      } else {
+        res.status(409).send("user not found");
+      }
+    } else {
+      res.status(409).send("information needed to perform process not present");
+    }
+  }
+);
 module.exports = userRouter;

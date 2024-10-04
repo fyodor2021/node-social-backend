@@ -177,10 +177,10 @@ const handleImageRemove = () => {
     z-index: 9999;
     background-color: rgba(0, 0, 0, 0.411);
     display: flex;
-    top: 0;
-    left: 0;
     justify-content: center;
     align-items: center;
+    top: 0;
+    left: 0;
     margin: 0;
     padding: 0;
     border: none;

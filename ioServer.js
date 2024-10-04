@@ -64,7 +64,7 @@ io.on("connection", (socket) => {
 
   socket.broadcast.emit("connected", socket.user._id);
 
-  socket.on("onUserConnectBundle", async (userList) => {
+  socket.on("userListOnlineStatusCheck", async (userList) => {
     let onlineUsers = [];
     for (let userId of userList) {
       const user = await userModel.findOne({ _id: userId }).select("email");
@@ -75,9 +75,21 @@ io.on("connection", (socket) => {
         }
       }
     }
-    io.to(socket.id).emit("connectionBundle", onlineUsers);
+    io.to(socket.id).emit("userListOnlineStatus", onlineUsers);
   });
-
+  socket.on("userOnlineStatusCheck", async (userId, cb) => {
+    console.log(userId)
+      const user = await userModel.findOne({ _id: userId }).select("email");
+      if (user.email) {
+        const userSocket = await redisClient.get(user.email + "Socket");
+        if (userSocket) {
+          cb({
+            status: 200
+          })
+        }
+      }
+    }
+  );
   socket.on("followCreated", async (data) => {
     console.log(data.sender, data.receiver);
     if (data.sender && data.receiver) {
@@ -146,9 +158,7 @@ io.on("connection", (socket) => {
     ]);
     const senderSocket = await redisClient.get(sender.email + "Socket");
     const receiverSocket = await redisClient.get(receiver.email + "Socket");
-    cb({
-      status: 200,
-    });
+
     io.to(senderSocket).to(receiverSocket).emit("message", { message });
     io.to(receiverSocket).emit("newMessageAlert", { userId: socket.user._id });
   });

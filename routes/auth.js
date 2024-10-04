@@ -15,61 +15,59 @@ const redisClient = Redis.createClient({ url: "redis://127.0.0.1:6379" });
 
 authRouter.post("/login", async (req, res) => {
   if (!req.headers.authorization && !req.cookies.RF_) {
-    if (req.body == null)
-      return res.status(409).send("Please fill the required fields.");
-    try {
-      const criterias = {
-        email: req.body.email,
-      };
-      const storedUser = await userModel.findOne(criterias).exec();
-      if (storedUser === null) return res.status(403).send("Cannot find User");
-      else {
-        if (await bcrypt.compare(req.body.password, storedUser.password)) {
-          const { _id, fname, lname, email,profilePic  } = storedUser;
-          const token = jwt.sign(
-            { _id, fname, lname, email },
-            process.env.JWT_SECRET,
-            { expiresIn: "15s" }
-          );
-          const refreshToken = jwt.sign(
-            { _id, fname, lname, email },
-            process.env.JWT_REFRESH_SECRET,
-            { expiresIn: "1d" }
-          );
-          const storedToken = await redisClient.get(email + "RefreshToken");
-          if (!storedToken) {
-            redisClient.setEx(
-              email + "RefreshToken",
-              86400 * 1000,
-              refreshToken
+    if (req.body.email && req.body.password){
+      try {
+        const storedUser = await userModel.findOne({email: req.body.email}).exec();
+        if (!storedUser)  res.status(409).send("Cannot find User");
+        else {
+          if (await bcrypt.compare(req.body.password, storedUser.password)) {
+            const { _id, fname, lname, email  } = storedUser;
+            const token = jwt.sign(
+              { _id, fname, lname, email },
+              process.env.JWT_SECRET,
+              { expiresIn: "15s" }
             );
+            const refreshToken = jwt.sign(
+              { _id, fname, lname, email },
+              process.env.JWT_REFRESH_SECRET,
+              { expiresIn: "1d" }
+            );
+            const storedToken = await redisClient.get(email + "RefreshToken");
+            if (!storedToken) {
+              redisClient.setEx(
+                email + "RefreshToken",
+                86400 * 1000,
+                refreshToken
+              );
+            } else {
+              await redisClient.del(email + "RefreshToken");
+              redisClient.setEx(
+                email + "RefreshToken",
+                86400 * 1000,
+                refreshToken
+              );
+            }
+            res.cookie("RT_", refreshToken, {
+              maxAge: 86400 * 1000,
+              httpOnly: true,
+              path: "/",
+            });
+            const signedProfilePic = storedUser && storedUser.profilePic
+             ?  await getSignedURL(storedUser.profilePic) 
+             : ''
+            // const signedProfilePic = profilePic ?  await getSignedURL(profilePic) : ''
+             res.status(200).json({ token: token, user: { _id, fname, lname, email, signedProfilePic } });
           } else {
-            await redisClient.del(email + "RefreshToken");
-            redisClient.setEx(
-              email + "RefreshToken",
-              86400 * 1000,
-              refreshToken
-            );
+            res.status(409).send("Cannot find User");
           }
-          res.cookie("RT_", refreshToken, {
-            maxAge: 86400 * 1000,
-            httpOnly: true,
-            path: "/",
-          });
-          const signedProfilePic = storedUser && storedUser.profilePic
-           ?  await getSignedURL(storedUser.profilePic) 
-           : ''
-          // const signedProfilePic = profilePic ?  await getSignedURL(profilePic) : ''
-          return res.json({ token: token, user: { _id, fname, lname, email, signedProfilePic } });
-        } else {
-          res.status(403).send("Cannot find User");
         }
+      } catch (error) {
+        console.log(error);
+        res.status(409).send(error);
       }
-    } catch (error) {
-      console.log(error);
-      res.status(403).send(error);
-
-    }
+    }else{
+       res.status(409).send("Please fill the required fields.");
+    } 
   }else{
     res.sendStatus(204)
   }

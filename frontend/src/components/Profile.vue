@@ -8,7 +8,9 @@ import capName from '@/functions/capName';
 import { storeToRefs } from 'pinia';
 import { useSocketStore } from '@/store/socket';
 import router from '@/router';
-import { onMounted, watch } from 'vue';
+import { onMounted, watch, reactive } from 'vue';
+import ProfilePicEdit from './ProfilePicEdit.vue';
+import EditIcon from '~icons/ic/round-ios-share'
 const authStore = useAuthStore();
 const notiStore = useNotiStore();
 const { socket } = storeToRefs(useSocketStore())
@@ -17,13 +19,17 @@ const props = defineProps({
     userResponse: {
         type: Object,
         required: true
+    },
+    toggleProfilePicEdit:{
+        type: Function
     }
 })
-const state = {
+const state = reactive({
     followIsLoading: false,
     followedByLoggedUser: props.userResponse.followedByLoggedUser,
-    myProfile: ''
-}
+    myProfile: '',
+    profilePicEdit: false
+})
 const handleFollowClick = () => {
     state.followIsLoading = true
     const followRequest = {
@@ -59,6 +65,7 @@ const handleFollowClick = () => {
         })
 
 }
+
 const handleUnfollowClick = () => {
     const receiver = props.userResponse.user
     axios.delete('connection/', { params: { receiverId: receiver._id } }).then(res => {
@@ -85,19 +92,21 @@ watch(router.currentRoute, (newRoute, oldRoute) => {
         state.myProfile = false
     }
 })
+
 </script>
 <template>
     <div class="wrapper mt-28">
         <div class="background-container">
             <img :src="backgroundPic" />
         </div>
-        <div class="flex justify-around items-center">
-            <div class="relative">
-                <div class="details relative">
-                    <div :class="`profile-pic-container ${state.myProfile ? 'my-profile' : ''}`">
+        <div class="d-wrapper">
+            <div>
+                <div class="details relative group ">
+                    <div :class="`profile-pic-container w-32 h-32  ${state.myProfile ? 'my-profile' : ''}`">
                         <img v-if="userResponse.user.signedProfilePic" :src="userResponse.user.signedProfilePic" />
-                        <img v-else :src="profile" />
-                    </div>
+                        <img class="rounded-full" v-else :src="profile" />
+                        <div v-if="userResponse.user._id === authStore._id" @click="toggleProfilePicEdit" class="absolute flex justify-center cursor-pointer items-center h-32 w-32 bg-gray-200 invisible rounded-full opacity-40 group-hover:visible text-3xl"><EditIcon/></div>
+                    </div >
                     <div class="font-bold text-xl">
                         <div class="name-container">
                             {{ capName(userResponse.user.fname) }}
@@ -114,7 +123,7 @@ watch(router.currentRoute, (newRoute, oldRoute) => {
                     <button v-else @click="handleUnfollowClick" class="button follow-button">Following</button>
                 </div>
                 <div v-else>
-                    <button class="button follow-button invisible">Follow</button>
+                    <button class="button follow-button hidden">Follow</button>
                 </div>
                 <div class="flex">
                     <div class="flex text-lg">
@@ -140,20 +149,25 @@ watch(router.currentRoute, (newRoute, oldRoute) => {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-
-    min-width: 625px;
-    height: 60vh;
-    min-height: 600px;
+    min-height: 300px;
+    max-height: 60vh;
+    max-width: 956px;
+    margin: 0 auto;
     border-radius: .25rem;
     margin-bottom: 1rem;
     border: 1px solid rgba(105, 105, 105, 0.11);
     box-shadow: 0px 0px 3px 0px rgba(0, 0, 0, 0.295);
 }
-
+.d-wrapper{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 .details {
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
 }
 
 .my-profile:hover {
@@ -171,7 +185,7 @@ watch(router.currentRoute, (newRoute, oldRoute) => {
 }
 
 .activity-container {
-    height: 200px;
+    max-height: 200px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -214,6 +228,12 @@ watch(router.currentRoute, (newRoute, oldRoute) => {
 @media only screen and (max-width: 1000px) {
     .wrapper {
         width: 100% !important;
+    }
+
+}
+@media only screen and (max-width: 720px){
+    .d-wrapper{
+        flex-direction: column;
     }
 }
 </style>

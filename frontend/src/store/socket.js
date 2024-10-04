@@ -32,9 +32,16 @@ export const useSocketStore = defineStore("socket", () => {
     newMessageAlert.value = false;
   }
   function setUpInitialConnectionBundleEmitter(userList){
-    socket.value.emit("onUserConnectBundle", userList);
-    socket.value.on('connectionBundle', userList => {
+    socket.value.emit("userListOnlineStatusCheck", userList);
+    socket.value.on('userListOnlineStatus', userList => {
       for(let userId of userList){
+        connectedUsers.value.add(userId)
+      }
+    })
+  }
+  function setUpUserOnlineStatusCheck(userId){
+    socket.value.emitWithAck("userOnlineStatusCheck", userId).then(res => {
+      if(res.status === 200){
         connectedUsers.value.add(userId)
       }
     })
@@ -93,6 +100,7 @@ export const useSocketStore = defineStore("socket", () => {
     setUpInitialConnectionBundleEmitter,
     addUserToConnectedUsers,
     setUpNewNotificationListener,
-    setUpDeleteNotificationListener
+    setUpDeleteNotificationListener,
+    setUpUserOnlineStatusCheck
   };
 });

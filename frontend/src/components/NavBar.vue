@@ -53,32 +53,33 @@ onMounted(() => {
                 <img :src="authStore.signedProfilePic ? authStore.signedProfilePic : profilePic">
             </div>
             <div class="flex">
-                <i @click="() => displayStore.toggleCreateView()" class="pi pi-plus w-12 text-3xl m-2"></i>
+                <i @click="() => displayStore.toggleCreateView()" class="pi pi-plus n-b-item"></i>
 
-                <i @click="() => router.push('/')" :class="`pi pi-home ${router.currentRoute.value.path === '/' ? 'text-gray-400' : ''} w-12 text-3xl m-2`"></i>
+                <i @click="() => router.push('/')"
+                    :class="`pi pi-home n-b-item ${router.currentRoute.value.path === '/' ? 'text-gray-400' : ''}`"></i>
 
                 <i @click="() => displayStore.toggleSearchView()"
-                    class="pi pi-search w-12 text-3xl m-2 2xl:hidden "></i>
+                    :class="`pi pi-search n-b-item ${router.currentRoute.value === '/chat' ? 'inline' : ''}`"></i>
 
-                <div class="relative" v-click-outside="() => displayStore.notiView = false">
+                <div class="relative mx-auto" v-click-outside="() => displayStore.notiView = false">
 
-                    <i :class="`pi pi-bell ${displayStore.notiView ? 'text-gray-400' : ''} w-12 text-3xl m-2 relative`" @click="handleNotiClick"></i>
+                    <i :class="`pi pi-bell n-b-item ${displayStore.notiView ? 'text-gray-400' : ''} `"
+                        @click="handleNotiClick"></i>
 
-                    <div class="notification-panel">
-                        <NotificationView v-if="displayStore.notiView" />
-                    </div>
+                    <NotificationView v-if="displayStore.notiView" />
 
                     <span v-if="state.newNoti" class="bg-red-500 rounded absolute w-2 h-2 top-0 right-4"></span>
                 </div>
 
                 <span class="relative">
                     <RouterLink to="/chat" @click="() => socketStore.newMessageAlert = false"
-                        :class="`pi pi-send w-12 text-3xl m-2 cursor-pointer ${router.currentRoute.value.path === '/chat' ? 'text-gray-400' : ''}`"></RouterLink>
+                        :class="`pi pi-send n-b-item ${router.currentRoute.value.path === '/chat' ? 'text-gray-400' : ''}`">
+                    </RouterLink>
                     <span v-if="socketStore.newMessageAlert"
                         class="bg-red-500 rounded absolute w-2 h-2 top-2 right-4"></span>
                 </span>
                 <div class="relative" v-click-outside="() => displayStore.navOptionList = false">
-                    <i :class="`pi pi-ellipsis-v ${displayStore.navOptionList ? 'text-gray-400' : ''} w-12 text-3xl m-2 cursor-pointer relative`"
+                    <i :class="`pi pi-ellipsis-v n-b-item ${displayStore.navOptionList ? 'text-gray-400' : ''} `"
                         @click="() => displayStore.toggleNavOptionList()"></i>
                     <div v-if="displayStore.navOptionList" class="options-container">
                         <div class="triangle ml-4 mr-4"></div>
@@ -115,11 +116,9 @@ onMounted(() => {
     right: 0;
     top: 1rem;
     z-index: 30;
-    width: 50%;
-    min-width: 800px;
-    min-height: 90px;
+    min-height: 80px;
+    max-width: 956px;
     margin: 0 auto;
-    max-width: 100vw;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -128,13 +127,15 @@ onMounted(() => {
     padding: 0.5rem 0.5rem;
     border-radius: .25rem;
     box-shadow: 0 0 6px 0px #0000003d;
+    display: none;
 }
 
 .options-container {
     position: fixed;
     display: flex;
     flex-direction: column;
-    width: 13vw;
+    min-width: 13vw;
+    margin-left: .55rem
 }
 
 .options-wrapper {
@@ -166,36 +167,27 @@ onMounted(() => {
 
 }
 
-
-.notification-panel {
-    position: fixed;
-
+.n-b-item {
+    font-size: 2rem;
+    margin: 1rem
 }
 
 @media only screen and (max-width: 1200px) {
     .wrapper {
-        margin: 0 !important;
-        width: 100% !important;
         border-radius: 0 !important;
     }
-
-    .options-container {
-        align-items: flex-end;
-        right: 1.5em;
-    }
-    .notification-panel{
-        right: 9.8em
-
-    }
-
 
 }
 
 @media only screen and (max-width: 1000px) {
     .n-b-container {
-        width: 100% !important;
         margin: 0 !important;
+
     }
 
+    .options-container {
+        align-items: flex-end;
+        right: 1em;
+    }
 }
 </style>

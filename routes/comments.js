@@ -12,7 +12,7 @@ commentRouter.get("/", authenticateToken, async (req, res) => {
   const comments = await commentModel
     .find({ contentId: req.query.contentId })
     .skip(req.query.offset)
-    .limit(3)
+    .limit(8)
     .sort({ date: -1 })
     .exec();
   const commentResponse = [];

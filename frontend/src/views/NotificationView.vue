@@ -22,7 +22,8 @@ const displayStore = useDisplayStore();
 .n-container {
     display: flex;
     flex-direction: column;
-    min-width: 21vw;
+    position: fixed;
+    margin-left: .55rem
     
 }
 
@@ -39,9 +40,9 @@ const displayStore = useDisplayStore();
     width: 100%;
 
 }
-@media only screen and (max-width: 1200px) {
-    .container{
+/* @media only screen and (max-width: 1100px) {
+    .n-container{
         align-items: flex-end;
     }
-}
+} */
 </style>

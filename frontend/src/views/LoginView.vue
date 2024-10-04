@@ -19,23 +19,32 @@ const handleSubmit = async () => {
     email: form.email, 
     password : form.password
   }
-  const response = await axios.post('/auth/login',userCred)
-  if(response && response.status === 200 && response.data ) {
-    authStore.setToken(response.data.token)
-    authStore.setFname(response.data.user.fname)
-    authStore.setLname(response.data.user.lname)
-    authStore.setEmail(response.data.user.email)
-    authStore.setProfilePic(response.data.user.signedProfilePic)
-    authStore.setId(response.data.user._id)
-    await notiStore.getNotifications()
-    router.push('/').then(
-      () => router.go()
-    )
-  }
+  axios.post('/auth/login',userCred).then(async res => {
+    if(res && res.status === 200 && res.data ) {
+      authStore.setToken(res.data.token)
+      authStore.setFname(res.data.user.fname)
+      authStore.setLname(res.data.user.lname)
+      authStore.setEmail(res.data.user.email)
+      authStore.setProfilePic(res.data.user.signedProfilePic)
+      authStore.setId(res.data.user._id)
+      await notiStore.getNotifications()
+      router.push('/').then(
+        () => router.go()
+      )
+    }else if (res && res.status === 204){
+      console.log('im here')
+      router.push('/')
+    }
+  }).catch(err => {
+    if (err.response && err.response.data){
+            valMessageStore.setValMessage(err.response.data)
+        }
+  })
 }
 const handleToggleForgot = () => {
   forgotPassword.value = !forgotPassword.value;
 }
+
 </script>
 <template>
   <div class="flex min-h-screen flex-col justify-center px-6 py-12 lg:px-8">
@@ -67,7 +76,7 @@ const handleToggleForgot = () => {
             class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 p-2">
           </div>
         </div>
-        <div><span class="text-red-500">{{ valMessageStore.valMessage ? valMessageStore.valMessage : '' }}</span></div>
+        <div class="h-2"><span class="text-red-500">{{ valMessageStore.valMessage ? valMessageStore.valMessage : '' }}</span></div>
         <div>
           <button type="submit"
             class="flex w-full justify-center rounded-md bg-blue-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">Log

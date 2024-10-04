@@ -8,6 +8,7 @@ export default {
       },
       screens: {
         'xl': '1200px',
+        'sm': '600px',
         '2xl': '1520px',
       },
       container: {
