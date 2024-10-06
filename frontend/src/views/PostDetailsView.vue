@@ -1,11 +1,12 @@
 <script setup>
 import router from '@/router';
-import { onMounted, reactive, onUnmounted, ref, nextTick, watch } from 'vue';
+import { onMounted, reactive, onUnmounted, ref, nextTick, watch, onBeforeMount, onBeforeUnmount } from 'vue';
 import axios from 'axios'
 import Post from '../components/Post.vue'
 import CommentList from '@/components/CommentList.vue';
 import ReplyBox from '@/components/ReplyBox.vue';
 import Loader from '@/components/Loader.vue';
+import LikeComment from '@/components/LikeComment.vue';
 const props = defineProps({
     postId: {
         type: String,
@@ -35,7 +36,7 @@ const handleScroll = (e) => {
                 console.log(error)
             })
 
-        }
+    }
     console.log(commentListRef.value.scrollTop + commentListRef.value.clientHeight === commentListRef.value.scrollHeight)
 }
 
@@ -67,61 +68,55 @@ onMounted(async () => {
     }
 
 })
-onUnmounted(() => {
+onBeforeUnmount(() => {
     commentListRef.value.removeEventListener('scroll', handleScroll)
 })
 </script>
 <template>
-    <div v-if="state.postResponse && state.isLoaded" class="mt-28 h-full w-full p-2">
-        <div class="p-d-container">
-            <div class="h-full">
-                <Post :postResponse="state.postResponse" />
-                <ReplyBox :contentId="props.postId" />
-            </div>
-            <div class="comment-list" ref="commentListRef">
+    <div v-if="state.postResponse && state.isLoaded" class="p-d-container ">
+        <div>
+            <Post :is-share="true" :postResponse="state.postResponse" />
+        </div>
+        <div>
+            <div v-if="state.comments" class="comment-list" ref="commentListRef">
                 <CommentList v-if="state.comments" :comments="state.comments" />
             </div>
+            <LikeComment :contentResponse="state.postResponse" />
+            <ReplyBox :contentId="props.postId" />
         </div>
     </div>
     <Loader v-else />
 </template>
 
 <style scoped>
-/* .container {
-  display: flex;
-  justify-content: center;
-  width: 100vw;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-} */
 .p-d-container {
     width: 75%;
     display: flex;
     padding-right: 1rem;
     border-radius: .5rem;
     margin-left: auto;
+    margin-top: 2rem;
 }
 
 .comment-list {
-    width: 41%;
-    height: 80vh;
+    height: 75vh;
     overflow: auto;
 }
 
 @media only screen and (max-width: 1775px) {
     .p-d-container {
         margin: 0 auto;
+        margin-top: 112px;
     }
 }
 
-@media only screen and (max-width: 1200px) {
+@media only screen and (max-width: 1550px) {
     .p-d-container {
         width: 100%;
         flex-direction: column;
         outline: none;
         box-shadow: none;
+        padding: 0;
     }
 
     .comment-list {

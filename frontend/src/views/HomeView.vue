@@ -4,6 +4,7 @@ import axios from 'axios'
 import PostList from '@/components/PostList.vue';
 import Loader from '@/components/Loader.vue';
 import { useAuthStore } from '@/store/auth';
+import PostDetailsView from './PostDetailsView.vue';
 const state = reactive({
   posts: [],
   isLoading: true,
@@ -33,10 +34,20 @@ onUnmounted(() => {
 
 </script>
 <template>
-  <div class="mt-28 ">
+  <div class="h-container">
     <div class=" mx-auto mt-0 mb-0 w-full">
       <Loader v-if="state.isLoading" />
       <PostList v-else :posts="state.posts" />
     </div>
   </div>
 </template>
+<style scoped>
+.h-container{
+  margin-top: 1rem;
+}
+@media only screen and (max-width:1775px) {
+    .h-container {
+      margin-top: 112px;
+    }
+}
+</style>

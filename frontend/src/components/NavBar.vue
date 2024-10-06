@@ -190,4 +190,10 @@ onMounted(() => {
         right: 1em;
     }
 }
+@media only screen and (max-width: 1775px) {
+    .wrapper {
+        display: flex;
+    }
+
+}
 </style>

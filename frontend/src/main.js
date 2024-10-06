@@ -39,7 +39,7 @@ axios.interceptors.response.use(
     const resErr = e.response;
     if (resErr && resErr.status === 403 && resErr.data === "unauthenticated") {
       authStore.setToken(null);
-      // router.push("/login");
+      router.push("/login");
     }
     return Promise.reject(e);
     // if (resErr && resErr.status === 404) {

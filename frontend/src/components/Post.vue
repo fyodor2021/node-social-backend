@@ -30,6 +30,9 @@ const props = defineProps({
     },
     toggleEdit: {
         type: Function
+    },
+    handlePostClick:{
+        type: Function
     }
 })
 const canvas = ref();
@@ -73,8 +76,7 @@ const handlePostDelete = () => {
                     </div>
                 </div>
             </div>
-            <div @click="() => router.push({ name: 'postDetails', params: { postId: postResponse.post._id } })
-                " class="p-2 pr-12 pl-12 cursor-pointer">
+            <div @click="handlePostClick" class="p-2 pr-12 pl-12 cursor-pointer">
                 <div class="font-bold text-lg">
                     {{ postResponse.post.content }}
                 </div>

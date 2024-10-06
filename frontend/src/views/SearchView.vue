@@ -88,4 +88,9 @@ const handleUserSelect = (user) => {
 .user-list>div> :first-child>img {
     width: 6rem !important;
 }
+@media only screen and (max-width: 975px){
+    .wrapper {
+        width: 100%;
+    }
+}
 </style>

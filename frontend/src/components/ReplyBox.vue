@@ -78,7 +78,7 @@ const handleTyping = () => {
 
 </script>
 <template>
-    <div :class="`wrapper flex-row ${contentLength <= 0 ? 'rounded-2xl': ''}`">
+    <div :class="`wrapper flex-row `">
         <div class="flex justify-center items-center w-full pr-1 pl-1">
             <img class="h-12 mr-4" :src="profile" alt="profile pictore" />
             <textarea @input="handleTyping" v-model="state.input" type="text" class="input"
@@ -106,12 +106,9 @@ const handleTyping = () => {
     justify-content: space-between;
     align-items: center;
     padding: .5rem 1rem;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.068),
-        1px 1px 1px rgba(0, 0, 0, 0.068),
-        -1px 1px 1px rgba(0, 0, 0, 0.068);
-    border-radius: 0 0 1rem 1rem;
+
     background-color: rgb(255, 254, 254);
-    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.295);
+
     margin-bottom: 1rem
 }
 

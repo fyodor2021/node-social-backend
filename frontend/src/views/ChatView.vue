@@ -105,7 +105,6 @@ onMounted(async () => {
     setTimeout(() => {
         chatBox.value.scrollTop = chatBox.value.scrollHeight
     }, 100);
-
     socket.value.on('message', (data) => {
         if ((state.selectedUser._id === data.message.sender._id) || (data.message.sender._id === authStore._id)) {
             state.messages = [data.message, ...state.messages]
@@ -113,7 +112,7 @@ onMounted(async () => {
         } else {
             for (let user in state.usersList) {
                 if (user._id === data.message.sender._id) {
-                    console.log('im here')
+                console.log('im here')
                 }
             }
         }
@@ -122,7 +121,6 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
     chatBox.value.removeEventListener('scroll', chatScrollUp)
-    displayStore.toggleSidePanel();
 })
 
 
@@ -181,7 +179,6 @@ onBeforeUnmount(() => {
 
 .side-wrapper {
     width: 100%;
-    height: 150px;
     background-color: black;
     padding: 0.5rem;
     margin-bottom: .25rem;
@@ -192,10 +189,7 @@ onBeforeUnmount(() => {
     margin-right: .75rem;
 }
 
-.user-search-results {
-    position: absolute;
-    top: 10rem;
-}
+
 
 .name-search-container {
     display: flex;
@@ -227,15 +221,27 @@ onBeforeUnmount(() => {
 }
 
 .chat-user-list {
+    display: flex;
     flex-direction: row;
+    max-width: 76vw;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: .5rem;
+    height: 100px;
+
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
 }
 
 .chat-user-list>* {
     color: white;
-    width: 100%;
+    width: 250px;
+    height: 80px;
     background-color: rgba(102, 102, 102, 0.185);
     border-radius: 0.5rem;
     margin: 0.25rem 0.5rem;
+
 }
 
 .chat-box {
@@ -258,5 +264,14 @@ onBeforeUnmount(() => {
 /* .message-list-wrapper::-webkit-scrollbar{
     display: none;
 } */
-@media only screen and (max-width: 1200px) {}
+@media only screen and (max-width: 1775px) {
+    .c-container{
+        margin: 0 ;
+        margin-top: 112px;
+        max-width: 100vw;
+    }
+    .chat-user-list{
+        max-width: 100vw;
+    }
+}
 </style>
