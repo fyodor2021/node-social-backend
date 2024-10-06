@@ -47,7 +47,7 @@ const handleUserClick = () => {
 </script>
 <template>
     <div @click="handleUserClick"
-        :class="`flex items-center  justify-between cursor-pointer p-2  ${selected ? 'bg-black' : ''}`">
+        :class="`flex items-center justify-between cursor-pointer p-2  ${selected ? 'bg-black' : ''}`">
         <div v-if="user" class="flex items-center cursor-pointer justify-center ">
             <div :class="`profile-pic-container ${isComment ? 'w-8 h-8 mr-[6px]' : ''}`">
                 <img v-if="signedProfilePic" :src="signedProfilePic ? signedProfilePic : profile" :alt="user.fname"

@@ -90,8 +90,10 @@ console.log(props.isShare, props.isDetails)
                     <img :src="postResponse.signedPostPic" rel="preload" />
                 </div>
             </div>
-            <LikeComment v-if="!isShare && !isDetails" :toggleSend="toggleSend" :toggleShare="toggleShare"
-            :contentResponse="postResponse" />
+            <div class="w-1/4 ml-12">
+                <LikeComment v-if="!isShare && !isDetails" :toggleSend="toggleSend" :toggleShare="toggleShare"
+                :contentResponse="postResponse" />
+            </div>
         </div>
     </div>
 </template>

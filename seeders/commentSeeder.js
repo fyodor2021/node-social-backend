@@ -30,11 +30,15 @@ async function getPostsAndCreateComments() {
   if (posts) {
     for (let post of posts) {
       for (let user of users) {
-        const comment = generateComment(user, post._id);
-        const storedComment = await comment.save();
+        const firstLayercomment = generateComment(user, post._id);
+        const storedFirestLayerComment = await firstLayercomment.save();
         for (let user of users) {
-          const commentOnComment = generateComment(user, storedComment._id);
-          await commentOnComment.save();
+          const secondLayerComment = generateComment(user, storedFirestLayerComment._id);
+          const storedSecondLayerComment = await secondLayerComment.save();
+          for (let user of users) {
+            const thirdLayerComment = generateComment(user, storedSecondLayerComment._id);
+             await thirdLayerComment.save();
+          }
         }
       }
     }

@@ -5,6 +5,7 @@ import EmojiPicker from 'vue3-emoji-picker'
 import { useAuthStore } from '@/store/auth';
 import 'vue3-emoji-picker/css'
 import axios from 'axios'
+import SmileFace from '~icons/ph/smiley-wink-thin'
 const authStore = useAuthStore();
 
 const props = defineProps({
@@ -78,16 +79,15 @@ const handleTyping = () => {
 
 </script>
 <template>
-    <div :class="`wrapper flex-row `">
+    <div :class="`wrapper `">
         <div class="flex justify-center items-center w-full pr-1 pl-1">
-            <img class="h-12 mr-4" :src="profile" alt="profile pictore" />
+            <button @click="toggleDisplayEmoji"><SmileFace class=" text-3xl text-black"/>
+            </button>
             <textarea @input="handleTyping" v-model="state.input" type="text" class="input"
-                placeholder="Add your comment..."></textarea>
+            placeholder="Add your comment..."></textarea>
         </div>
         <div class="flex justify-center items-center">
             <button @click="() => content ? handleEditComment() : handleCreateComment()" class="bg-white text-black p-2 rounded mr-4">{{ content ? 'Edit' : 'Reply' }}</button>
-            <button @click="toggleDisplayEmoji"><i class="pi pi-face-smile text-3xl text-black"></i>
-            </button>
         </div>
         <div  class="emoji-wrapper cursor-pointer">
             <EmojiPicker v-if="state.displayEmo" :native="true" @select="onSelectEmoji" />
@@ -105,17 +105,16 @@ const handleTyping = () => {
     position: relative;
     justify-content: space-between;
     align-items: center;
-    padding: .5rem 1rem;
-
     background-color: rgb(255, 254, 254);
-
-    margin-bottom: 1rem
 }
 
 .input {
     width: 100%;
+    margin-top: 20px;
+    margin-left: .25rem;
     height: auto;
     color: black;
+    font-size: .90rem;
     resize: none;
 }
 

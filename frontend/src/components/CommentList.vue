@@ -10,15 +10,22 @@ const props = defineProps({
 });
 const state = reactive({
   openComment: '',
-  closeOrder: false
+  closeOrder: false,
+  openReply: ''
 })
 const openCommentFunc = (id) => {
   state.openComment = id
 }
+const openReplyFunc = (id) => {
+  console.log(id)
+  state.openReply = id
+}
+const handleDeleteComment = (id) => {
+  
+}
 </script>
 <template>
-    <Comment  v-for="comment in comments" :key="comment._id" :commentResponse="comment" :openCommentFunc="openCommentFunc" :openComment="state.openComment"/>
+  <Comment v-for="comment in comments" :deleteComment="handleDeleteComment" :key="comment._id" :openReply="state.openReply" :openReplyFunc="openReplyFunc"
+    :commentResponse="comment" :openCommentFunc="openCommentFunc" :openComment="state.openComment" />
 </template>
-<style scoped>
-
-</style>
+<style scoped></style>

@@ -8,10 +8,16 @@ import ReplyBox from '@/components/ReplyBox.vue';
 import Loader from '@/components/Loader.vue';
 import LikeComment from '@/components/LikeComment.vue';
 import ContentUser from '@/components/ContentUser.vue';
+import SpinnerIcon from '~icons/line-md/loading-twotone-loop'
+
 const props = defineProps({
     postResponse: {
         type: Object,
         required: true,
+    },
+    clickOutside: {
+        type: Function,
+        required: true
     }
 })
 
@@ -21,6 +27,7 @@ const state = reactive({
     liked: false,
     comments: '',
     commentNum: 0,
+    isLoading: false,
 })
 
 const handleScroll = (e) => {
@@ -44,10 +51,14 @@ const closeInputs = (value) => {
 }
 
 onMounted(async () => {
+    state.isLoading = true
     await axios.get('/comment', { params: { contentId: props.postResponse.post._id, offset: 0 } })
         .then(res => {
             state.comments = res && res.data
-            commentListRef.value.addEventListener('scroll', handleScroll)
+            setTimeout(() => {
+                commentListRef.value.addEventListener('scroll', handleScroll)
+            }, 1);
+            state.isLoading = false
         }).catch(error => {
             console.log(error)
         })
@@ -58,23 +69,28 @@ onBeforeUnmount(() => {
 </script>
 <template>
     <div class="w-screen h-screen bg-[#0000001f] top-0 flex justify-around items-center fixed z-[999999]">
-        <div v-if="postResponse" class="p-d-container ">
+        <div v-if="postResponse" class="p-d-container " v-click-outside="clickOutside">
             <div>
                 <Post :postResponse="postResponse" :isDetails="true" />
             </div>
-            <div class="flex flex-col justify-between h-full w-[30%]">
-                <div class="h-[80%]">
+            <div class="flex flex-col justify-between h-full w-[45%]">
+                <div class="h-[70%]">
                     <ContentUser :postDate="postResponse.post.date" :user="postResponse.post.user"
                         :signedProfilePic="postResponse.signedProfilePic" />
                     <div class="font-bold text-sm">
                         {{ postResponse.post.content }}
                     </div>
-                    <div v-if="state.comments" class="comment-list" ref="commentListRef">
+                    <div v-if="state.isLoading" class="w-full flex justify-center">
+                        <SpinnerIcon class="mt-12 w-12 h-12 flex justify-center items-center" />
+                    </div>
+                    <div v-else class="comment-list" ref="commentListRef">
                         <CommentList v-if="state.comments" :comments="state.comments" />
                     </div>
                 </div>
                 <div class="h-[20%]">
-                    <LikeComment :contentResponse="postResponse" />
+                    <div class="w-[70%]">
+                        <LikeComment :contentResponse="postResponse" />
+                    </div>
                     <ReplyBox :contentId="postResponse.post._id" />
                 </div>
             </div>

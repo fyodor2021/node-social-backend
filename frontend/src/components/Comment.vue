@@ -6,16 +6,27 @@ import LikeComment from './LikeComment.vue';
 import CommentList from './CommentList.vue';
 import ReplyBox from './ReplyBox.vue';
 import { useAuthStore } from '@/store/auth';
+import Loader from './Loader.vue';
+import SpinnerIcon from '~icons/line-md/loading-twotone-loop'
 const props = defineProps({
     commentResponse: {
         type: Object,
         required: true
+    },
+    deleteComment: {
+        type: Function
     },
     openCommentFunc: {
         type: Function
     },
     openComment: {
         type: String,
+    },
+    openReplyFunc: {
+        type: Function
+    },
+    openReply: {
+        type: String
     }
 })
 const authStore = useAuthStore();
@@ -23,11 +34,12 @@ const state = reactive({
     liked: false,
     displayDes: false,
     comments: [],
-    isLoaded: true,
     fullComment: true,
     displayOptions: false,
-    displayEdit: false,
-    editedCommentRes: '',
+    displayReply: false,
+    isLoading: false,
+    isViewMoreLoading: false,
+    commentContent: props.commentResponse.comment.content.slice(0, 150),
 })
 const handleContentClick = () => {
     if (state.displayDes) {
@@ -35,11 +47,11 @@ const handleContentClick = () => {
     } else {
         props.openCommentFunc(props.commentResponse.comment._id)
         if (!state.comments.length > 0) {
-            state.isLoaded = false
+            state.isLoading = true
             axios.get('/comment/id', { params: { commentId: props.commentResponse.comment._id, offset: 0 } }).then((res) => {
                 if (res.data) {
                     state.comments = res.data
-                    state.isLoaded = true
+                    state.isLoading = false
                     state.displayDes = true
                 }
             })
@@ -49,10 +61,13 @@ const handleContentClick = () => {
     }
 }
 const handleSeeMore = () => {
+    state.isViewMoreLoading = true
     axios.get('/comment/id', { params: { commentId: props.commentResponse.comment._id, offset: state.comments.length } }).then((res) => {
         if (res.data) {
             state.comments = [...state.comments, ...res.data]
             console.log(res.data)
+            state.isViewMoreLoading = false
+
         }
     })
 }
@@ -67,102 +82,82 @@ const handleCommentDelete = () => {
     axios.delete('comment/', { params: { commentId: props.commentResponse.comment._id } })
         .then(res => {
             if (res && res.status === 204) {
-                router.go('/')
+                props.deleteComment(props.commentResponse.comment._id)
             }
         })
 }
-const setEditedComment = (commentResponse) => {
-    console.log(commentResponse)
-    state.editedCommentRes = commentResponse
-    state.displayEdit = false
+
+const handleReplyClick = () => {
+    if (props.openReply === props.commentResponse.comment._id) {
+        props.openReplyFunc()
+    } else {
+        props.openReplyFunc(props.commentResponse.comment._id)
+    }
 }
+
 //v-if="commentResponse.comment.user._id === authStore._id" 
-console.log(state)
 </script>
 <template>
     <div :class="`wrapper`">
-        <div class="flex justify-center items-center">
-            <div class="flex justify-between p-2 items-center relative">
-                <ContentUser :user="commentResponse.comment.user" :signedProfilePic="commentResponse.signedProfilePic"
-                    :isComment="true" />
+        <div class="flex justify-between w-[100%] text-justify">
+            <div class="w-full">
+                <div class=" float-left h-[2.3rem]">
+                    <ContentUser :user="commentResponse.comment.user"
+                        :signedProfilePic="commentResponse.signedProfilePic" :isComment="true" />
+                </div>
+                <div class="text-[.85rem] mt-4 ml-4 w-[90%] ">
+                    <span @click="handleContentClick" class="cursor-pointer">{{ state.commentContent }}</span>
+                    <span
+                        @click="() => state.commentContent += commentResponse.comment.content.slice(state.commentContent.length, state.commentContent.length + 300)"
+                        v-if="commentResponse.comment.content.length > 150" class="text-gray-400 cursor-pointer">...See
+                        More</span>
+                </div>
+            </div>
+        </div>
+        <div class="mt-2">
+            <div class="relative ">
                 <i v-if="commentResponse.comment.user._id === authStore._id"
                     @click="() => state.displayOptions = !state.displayOptions"
-                    class="pi pi-ellipsis-v text-2xl text-gray-400">
+                    class="pi pi-ellipsis-v text-xl text-gray-400 ">
                 </i>
                 <div v-if="state.displayOptions" class="crud-menu">
-                    <div class="triangle f"></div>
-                    <div class="">
-                        <div class="crud-item" @click="() => state.displayEdit = !state.displayEdit">
-                            <div class="w-full pt-1 pb-1 pr-2 pl-2 cursor-pointer flex items-center">
-                                <i class="pi pi-pen-to-square mr-2 text-green-500"></i><span
-                                    class="text-white">Edit</span>
-                            </div>
-                        </div>
-                        <div class="crud-item" @click="handleCommentDelete">
-                            <div class="w-full pt-1 pb-1 pr-2 pl-2 cursor-pointer flex items-center">
-                                <i class="pi pi-times-circle mr-2 text-red-500"></i><span
-                                    class="text-white">Delete</span>
-                            </div>
+                    <div class="triangle"></div>
+                    <div class="crud-item" @click="handleCommentDelete">
+                        <div class="w-full pt-1 pb-1 pr-2 pl-2 cursor-pointer flex items-center">
+                            <i class="pi pi-times-circle mr-2 text-red-500"></i><span class="text-white">Delete</span>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="flex justify-between ">
-                <div v-if="!state.displayEdit" @click="handleContentClick" class="cursor-pointer ">
-                    <div v-if="!state.editedCommentRes">
-                        <div v-if="state.displayDes || commentResponse.comment.content.length < 150" class=" text-md">
-                            {{ commentResponse.comment.content }}
-                        </div>
-                        <div v-else class=" text-md w-full">
-                            {{ commentResponse.comment.content.slice(0, 150) }}... <span class="text-gray-400">See
-                                More</span>
-                        </div>
-                    </div>
-                    <div v-else>
-                        <div v-if="state.displayDes || state.editedCommentRes.comment.content.length < 150"
-                            class=" text-md">
-                            {{ state.editedCommentRes.comment.content }}
-                        </div>
-                        <div v-else class=" text-md w-full">
-                            {{ state.editedCommentRes.comment.content.slice(0, 150) }}... <span
-                                class="text-gray-400">See
-                                More</span>
-                        </div>
-                    </div>
-                    <div v-if="commentResponse.signedPostPic" class="image-container">
-                        <img :src="commentResponse.signedPostPic" rel="preload" />
-                    </div>
+            <LikeComment :contentResponse="commentResponse" :isComment="true" />
+        </div>
+    </div>
+    <div class="text-[.75rem] ml-8 flex justify-start items-center">
+        <div v-if="!state.displayDes && commentResponse.commentCount > 0" class="cursor-pointer mr-4"
+            @click="handleContentClick">
+            View ({{ commentResponse.commentCount }}) replies..
+        </div>
+        <div class="cursor-pointer" @click="handleReplyClick">
+            Reply
+        </div>
+        <SpinnerIcon v-if="state.isLoading" class="ml-5 w-4 h-4" />
+    </div>
+    <div class="w-full flex justify-end ">
+        <div v-if="state.displayDes && state.comments.length > 0" class="w-[90%] relative">
+            <div class="border-l-2 border-b-2 border-black h-8 w-4 absolute left-[-.75rem] rounded-bl-xl">
+            </div>
+            <CommentList :key="commentResponse.comment._id" :comments="state.comments" />
+            <div class="flex ">
+                <div v-if="commentResponse.commentCount - state.comments.length > 0" class="cursor-pointer text-sm"
+                    @click="handleSeeMore">
+                    View ({{ commentResponse.commentCount - state.comments.length }}) replies..
                 </div>
-                <div v-else class="w-full">
-                    <ReplyBox :contentId="commentResponse.comment._id" :contentLength="state.comments.length"
-                        :content="commentResponse.comment.content" :setEditedComment="setEditedComment" />
-                </div>
+                <SpinnerIcon v-if="state.isViewMoreLoading" />
             </div>
         </div>
-        <!-- <div class="w-full flex justify-around">
-            <div v-if="state.displayDes && commentResponse.commentCount > 0" class="tracker"></div>
-        </div> -->
-        <LikeComment v-if="!state.displayEdit" :contentResponse="commentResponse" :isComment="true" />
     </div>
-    <div v-if="state.displayDes" class="w-full flex justify-center">
-        <div class="content">
-            <CommentList :key="commentResponse.comment._id"  :comments="state.comments" />
-            <span v-if="state.displayDes
-                && state.comments.length <= commentResponse.commentCount
-                && state.comments.length > 0
-                && state.isLoaded" @click="handleSeeMore" class="text-gray-400 cursor-pointer p-2">See
-                More...</span>
-            <ReplyBox :contentId="commentResponse.comment._id" 
-                :contentLength="state.comments.length" />
-        </div>
-    </div>
-    <div v-if="commentResponse.commentCount > 0" class="text-[.75rem] ml-8">
-        <div>
-        </div>
-        <div class="cursor-pointer" @click="handleContentClick">
-            View replies..
-        </div>
-    </div>
+    <ReplyBox v-if="openReply === commentResponse.comment._id" :contentId="commentResponse.comment._id"
+        :contentLength="state.comments.length" />
 </template>
 <style scoped>
 .tracker {
@@ -176,11 +171,6 @@ console.log(state)
     /* margin-top: 15px; */
 }
 
-
-.content {
-    width: 90%;
-}
-
 .wrapper {
     width: 100%;
     display: flex;
@@ -192,7 +182,7 @@ console.log(state)
 .crud-menu {
     position: absolute;
     right: 0;
-    top: 3.5rem;
+    top: 1rem;
     padding: .5rem;
     border-radius: .5rem 0 .5rem .5rem;
     z-index: 999;

@@ -25,6 +25,7 @@ const state = reactive({
   displayEdit: false,
   displayShare: false,
   displaySend: false,
+  displayDetails: false,
   SelectedPostResponse: '', 
   selectedPostForAction: ''
 })
@@ -42,11 +43,12 @@ const toggleSend = (postResponse) => {
   console.log(state.displaySend)
 }
 const handlePostClick = (postResponse)=> {
+  state.displayDetails = true
   state.SelectedPostResponse = postResponse
 }
 </script>
 <template>
-  <PostDetailsView v-if="state.SelectedPostResponse" :postResponse="state.SelectedPostResponse" />
+  <PostDetailsView v-if="state.SelectedPostResponse && state.displayDetails" :postResponse="state.SelectedPostResponse" :clickOutside="() => state.displayDetails = false"/>
     <ChatSearchView  v-if="state.displaySend && state.selectedPostForAction" :message="state.selectedPostForAction" :handleToggleChatSearch="() => state.displaySend = !state.displaySend" />
     <CreateEditView v-if='state.displayShare && state.selectedPostForAction' :isShare="true" :postResponse="state.selectedPostForAction"
       :toggleFunction="toggleShare" />
