@@ -35,7 +35,7 @@ onUnmounted(() => {
 </script>
 <template>
   <div class="h-container">
-    <div class=" mx-auto mt-0 mb-0 w-full">
+    <div class=" mx-auto w-full">
       <Loader v-if="state.isLoading" />
       <PostList v-else :posts="state.posts" />
     </div>
@@ -43,7 +43,7 @@ onUnmounted(() => {
 </template>
 <style scoped>
 .h-container{
-  margin-top: 1rem;
+  padding-top: 1rem;
 }
 @media only screen and (max-width:1775px) {
     .h-container {

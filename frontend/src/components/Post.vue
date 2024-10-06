@@ -20,7 +20,12 @@ const props = defineProps({
         type: Object,
     },
     isShare: {
-        type: Boolean
+        type: Boolean,
+        default: false
+    },
+    isDetails:{
+        type: Boolean,
+        default:false
     },
     toggleSend: {
         type: Function
@@ -51,11 +56,12 @@ const handlePostDelete = () => {
         }
     })
 }
+console.log(props.isShare, props.isDetails)
 </script>
 <template>
     <div :class="`content-container `">
         <div :class="`content-wrapper relative `">
-            <div class="flex justify-between p-2 items-center">
+            <div v-if="!isDetails" class="flex justify-between p-2 items-center">
                 <ContentUser :postDate="postResponse.post.date"
                     :user="sameUser ? '' : user ? user : postResponse.post.user"
                     :signedProfilePic="sameUser ? '' : user ? user.signedProfilePic : postResponse.signedProfilePic" />
@@ -76,16 +82,16 @@ const handlePostDelete = () => {
                     </div>
                 </div>
             </div>
-            <div @click="handlePostClick" class="p-2 pr-12 pl-12 cursor-pointer">
-                <div class="font-bold text-lg">
+            <div @click="() => handlePostClick(postResponse)" class="p-2 pr-12 pl-12 cursor-pointer">
+                <div  v-if="!isDetails" class="font-bold text-lg">
                     {{ postResponse.post.content }}
                 </div>
                 <div v-if="postResponse.signedPostPic" class="image-container">
                     <img :src="postResponse.signedPostPic" rel="preload" />
                 </div>
             </div>
-            <LikeComment v-if="!isShare" :toggleSend="toggleSend" :toggleShare="toggleShare"
-                :contentResponse="postResponse" />
+            <LikeComment v-if="!isShare && !isDetails" :toggleSend="toggleSend" :toggleShare="toggleShare"
+            :contentResponse="postResponse" />
         </div>
     </div>
 </template>
