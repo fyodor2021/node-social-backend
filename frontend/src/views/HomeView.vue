@@ -13,7 +13,7 @@ const state = reactive({
 
 const authStore = useAuthStore()
 async function handleScroll(e) {
-  if (window.scrollY + window.innerHeight >= document.body.scrollHeight + 112) {
+  if (window.scrollY + window.innerHeight >= document.body.scrollHeight) {
     axios.get('/post/', { params: { offset: state.posts.length } }).then((res) => {
       state.posts = res && [...state.posts, ...res.data]
     })

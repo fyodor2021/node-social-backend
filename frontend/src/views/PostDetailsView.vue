@@ -9,7 +9,7 @@ import Loader from '@/components/Loader.vue';
 import LikeComment from '@/components/LikeComment.vue';
 import ContentUser from '@/components/ContentUser.vue';
 import SpinnerIcon from '~icons/line-md/loading-twotone-loop'
-
+import BackIcon from '~icons/tabler/arrow-back-up'
 const props = defineProps({
     postResponse: {
         type: Object,
@@ -68,13 +68,14 @@ onBeforeUnmount(() => {
 })
 </script>
 <template>
-    <div class="w-screen h-screen bg-[#0000001f] top-0 flex justify-around items-center fixed z-[999999]">
+    <div class="w-screen h-screen md:h-full bg-[#0000001f] top-0 flex justify-around items-center  fixed z-[999999]">
         <div v-if="postResponse" class="p-d-container " v-click-outside="clickOutside">
-            <div>
+            <div class="h-[100%] flex justify-start items-start flex-col">
+                <BackIcon class="text-gray-500 w-16 h-16" @click="router.go('/')"/>
                 <Post :postResponse="postResponse" :isDetails="true" />
             </div>
-            <div class="flex flex-col justify-between h-full w-[45%]">
-                <div class="h-[70%]">
+            <div class="flex flex-col justify-between h-full w-[45%] md:w-[100%]">
+                <div class="h-[80%] md:h-[80%]">
                     <ContentUser :postDate="postResponse.post.date" :user="postResponse.post.user"
                         :signedProfilePic="postResponse.signedProfilePic" />
                     <div class="font-bold text-sm">
@@ -87,8 +88,8 @@ onBeforeUnmount(() => {
                         <CommentList v-if="state.comments" :comments="state.comments" />
                     </div>
                 </div>
-                <div class="h-[20%]">
-                    <div class="w-[70%]">
+                <div class="">
+                    <div class="w-[70%] md:w-1/4">
                         <LikeComment :contentResponse="postResponse" />
                     </div>
                     <ReplyBox :contentId="postResponse.post._id" />
@@ -101,6 +102,7 @@ onBeforeUnmount(() => {
 <style scoped>
 .p-d-container {
     width: 65%;
+    min-width: 900px;
     height: 80%;
     display: flex;
     padding-right: 1rem;
@@ -120,18 +122,19 @@ onBeforeUnmount(() => {
         margin-top: 112px;
     }
 }
+@media only screen and (max-width: 900px) {
 
-@media only screen and (max-width: 1550px) {
     .p-d-container {
         width: 100%;
+        height: 100%;
+        min-width: none;
+        margin-top: 0;
+        overflow-y: auto;
         flex-direction: column;
-        outline: none;
-        box-shadow: none;
-        padding: 0;
     }
-
-    .comment-list {
-        width: 100%;
+    .comment-list{
+        height: 90%;
     }
 }
+
 </style>

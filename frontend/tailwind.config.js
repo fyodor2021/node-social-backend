@@ -7,9 +7,11 @@ export default {
         sans:['Poppins', 'sans-serif']
       },
       screens: {
-        'xl': '1200px',
         'sm': '600px',
+        'md': {'max':'900px'},
+        'xl': '1200px',
         '2xl': '1520px',
+        '3xl': '1775px'
       },
       container: {
         center: false, 
