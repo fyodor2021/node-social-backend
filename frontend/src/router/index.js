@@ -53,13 +53,13 @@ const router = createRouter({
     },
   ],
 });
-router.beforeEach(async (to, from, next) => {
-  const authStore = useAuthStore(); // Initialize auth store
-  const { _id } = storeToRefs(authStore); // Destructure store refs
-  if (_id && (to.name == "login" || to.name == "register")) {
-    next("/");
-  } else {
-    next(); // Proceed to the requested route
-  }
-});
+// router.beforeEach(async (to, from, next) => {
+//   const authStore = useAuthStore(); // Initialize auth store
+//   const { _id } = storeToRefs(authStore); // Destructure store refs
+//   if (_id && (to.name == "login" || to.name == "register")) {
+//     next("/");
+//   } else {
+//     next(); // Proceed to the requested route
+//   }
+// });
 export default router;

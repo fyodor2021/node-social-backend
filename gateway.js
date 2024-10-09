@@ -44,12 +44,6 @@ app.use(
   })
 );
 
-// app.use(
-//   "/",
-//   createProxyMiddleware({
-//     target: "http://localhost:5173/",
-//   })
-// );
 app.get('*', (req,res) => {
   res.sendFile(__dirname + '/frontend/dist/index.html')
 })

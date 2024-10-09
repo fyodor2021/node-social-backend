@@ -30,11 +30,11 @@ axios.interceptors.response.use(
     const authToken = authHeader && authHeader.slice(7);
     if (authToken) {
       authStore.setToken(authToken);
-      // socketStore.connectToSocket(authToken)
     }
     return res;
   },
   (e) => {
+    console.log(e)
     const authStore = useAuthStore();
     const resErr = e.response;
     if (resErr && resErr.status === 403 && resErr.data === "unauthenticated") {
