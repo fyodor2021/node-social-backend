@@ -1,5 +1,5 @@
 <script setup>
-import backgroundPic from '@/assets/img/background.png'
+import backgroundPic from '@/assets/img/company-logo.png'
 import axios from 'axios'
 import { useNotiStore } from '@/store/notifications';
 import { useAuthStore } from '@/store/auth';
@@ -92,15 +92,15 @@ watch(router.currentRoute, (newRoute, oldRoute) => {
         state.myProfile = false
     }
 })
-
+console.log(props.userResponse)
 </script>
 <template>
-    <div class="wrapper mt-28">
+    <div class="wrapper max-w-[800px]">
         <div class="background-container">
             <img :src="backgroundPic" />
         </div>
         <div class="d-wrapper">
-            <div>
+            <div class="p-4">
                 <div class="details relative group ">
                     <div :class="`profile-pic-container w-32 h-32  ${state.myProfile ? 'my-profile' : ''}`">
                         <img v-if="userResponse.user.signedProfilePic" :src="userResponse.user.signedProfilePic" />

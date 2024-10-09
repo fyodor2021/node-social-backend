@@ -41,9 +41,7 @@ watch(newMessageAlert, (newValue, oldValue) => {
         socketStore.newMessageAlert = false
     }
 }, { deep: true })
-onMounted(() => {
-    console.log(router.currentRoute.value.path)
-})
+
 </script>
 <template>
     <div class="n-b-container">
@@ -189,7 +187,15 @@ onMounted(() => {
         align-items: flex-end;
         right: 1em;
     }
+
 }
+
+@media only screen and (max-width: 600px) {
+    .n-b-item {
+        font-size: 1.1rem;
+    }
+}
+
 @media only screen and (max-width: 1775px) {
     .wrapper {
         display: flex;

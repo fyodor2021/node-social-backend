@@ -18,35 +18,37 @@ const handleFollowAccept = () => {
         receiver: props.notification.sender,
     }
     axios.post('connection/request', followRequest)
-    .then(res => {
-        if (res && res.status === 201) {
-            console.log('im here')
-            socket.value.emit('followCreated', followRequest)
-            props.notification.type = 'request-accepted'
-        }
-    })
+        .then(res => {
+            if (res && res.status === 201) {
+                console.log('im here')
+                socket.value.emit('followCreated', followRequest)
+                props.notification.type = 'request-accepted'
+            }
+        })
 }
 
 
 </script>
 <template>
     <div class="n-container">
-        <div class="flex w-full">
-            <div class="profile-pic-container pic-container">
-                <img :src="profile" />
+        <div class="flex w-full ">
+            <div>
+                <img :src="profile" class="min-w-12 w-12" />
             </div>
-            <div class="flex justify-center items-start flex-col">
-                <div class="flex">
-                    <div class="font-bold text-xl">{{ capName(notification.sender.fname) }} {{ capName(notification.sender.lname) }}</div>
+            <div class="flex flex-col">
+                <div class="font-bold text-sm">
+                    {{ capName(notification.sender.fname) }} {{ capName(notification.sender.lname) }}
                 </div>
-                <div class="text-lg"> 
+                <div class="text-lg md:text-sm">
                     {{ notification.content }}
                 </div>
             </div>
         </div>
         <div class="w-24 h-12 flex justify-center items-center">
-            <button v-if="notification.type === 'request'"  @click="handleFollowAccept" class=" button text-lg">Follow</button>
-            <span v-if="notification.type === 'request-accepted'" class="button bg-gray-300 text-lg text-black flex justify-center items-center">Following</span>
+            <button v-if="notification.type === 'request'" @click="handleFollowAccept"
+                class=" button text-lg">Follow</button>
+            <span v-if="notification.type === 'request-accepted'"
+                class="button bg-gray-300 text-lg text-black flex justify-center items-center">Following</span>
 
         </div>
     </div>
@@ -61,11 +63,20 @@ const handleFollowAccept = () => {
     flex-direction: row !important;
     border-radius: 1rem;
 }
-.pic-container{
+
+.pic-container {
     width: 50px;
     height: 50px;
+    min-width: 50px;
+    min-height: 50px;
     border-radius: 100%;
     overflow: hidden;
     margin-right: 1rem
+}
+
+@media only screen and (max-width: 1250px) {
+    .n-container {
+        flex-wrap: wrap;
+    }
 }
 </style>

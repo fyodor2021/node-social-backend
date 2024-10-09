@@ -5,6 +5,8 @@ import axios from 'axios'
 import { useAuthStore } from '@/store/auth';
 // import Envelop from '~icons/fluent-emoji-flat/envelope';
 import Envelop from '~icons/fluent-emoji-high-contrast/incoming-envelope?width=500px&height=300px'
+import { useSocketStore } from '@/store/socket';
+import { storeToRefs } from 'pinia';
 
 const props = defineProps({
     handleSelectSearch: {
@@ -21,6 +23,8 @@ const props = defineProps({
     }
 })
 const authStore = useAuthStore();
+const socketStore = useSocketStore();
+const {socket} = storeToRefs(socketStore)
 const state = reactive({
     usersList: '',
     search: '',
@@ -67,6 +71,7 @@ const handleSendPost = () => {
         }
         axios.post('/message', messageRequest).then(() => {
             props.handleToggleChatSearch()
+            socket.value.emit('newMessage', { senderId: authStore._id, receiverId: state.selectedUser._id })
         })
     }
 }
@@ -82,7 +87,7 @@ const handleSendPost = () => {
                 <input @input="onSearchInput" placeholder="Search" v-model="state.search"
                     class="search-input shadow-none rounded-none " />
             </div>
-            <div :class="`user-list flex flex-col`">
+            <div :class="`user-list flex flex-col ${!message ? 'rounded-b-2xl': ''}`">
                 <ContentUser :isChatView="true" @click="handleSelectUser(user)" v-if="state.usersList"
                     :selected="state.selectedUser._id === user._id" v-for="user in state.usersList" :user="user"
                     :signedProfilePic="user.signedProfilePic" :key="user._id" />

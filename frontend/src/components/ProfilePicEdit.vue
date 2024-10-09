@@ -16,33 +16,38 @@ const props = defineProps({
 const state = reactive({
     uploadedImage: '',
     uploadedImageFile: '',
+    imageRemoved: false
 })
 const authStore = useAuthStore();
 const valMessageStore = useValMessageStore();
 const handleEditSubmit = () => {
-    const formData = new FormData();
-    const userRequest = {
-        userId: authStore._id,
-        imageRemoved: state.imageRemoved
-    }
-    formData.append('data', JSON.stringify(userRequest))
-    if (state.uploadedImage) {
+    if(!state.imageRemoved && !state.uploadedImage){
+        props.toggleFunction()
+    }else{
+        const formData = new FormData();
+        const userRequest = {
+            userId: authStore._id,
+            imageRemoved: state.imageRemoved
+        }
+        formData.append('data', JSON.stringify(userRequest))
         if (state.uploadedImage) {
-            formData.append('image', state.uploadedImageFile)
+            if (state.uploadedImage) {
+                formData.append('image', state.uploadedImageFile)
+            }
         }
+        axios.put('/user/profile/pic', formData, {
+            headers: {
+                "Content-Type": `multipart/form-data`
+            }
+        }).then(res => {
+            if (res.status === 201) {
+                router.go('/')
+            }
+        }).catch(error => {
+            valMessageStore.setValMessage('Please tell us more...')
+            return
+        })
     }
-    axios.put('/user/profile/pic', formData, {
-        headers: {
-            "Content-Type": `multipart/form-data`
-        }
-    }).then(res => {
-        if (res.status === 201) {
-            router.go('/')
-        }
-    }).catch(error => {
-        valMessageStore.setValMessage('Please tell us more...')
-        return
-    })
 }
 const handleFileUpload = (e) => {
     state.uploadedImageFile = e.target.files[0]
@@ -53,15 +58,19 @@ const handleFileUpload = (e) => {
     reader.readAsDataURL(e.target.files[0])
 }
 const removeUploadedImage = () => {
-    state.uploadedImageFile = ''
-    state.uploadedImage = ''
+    if(state.uploadedImage && !authStore.signedProfilePic){
+        state.uploadedImageFile = ''
+        state.uploadedImage = ''
+    }else{
+        state.imageRemoved = true
+    }   
 }
 </script>
 <template>
     <div class="p-p-container">
         <form @submit.prevent="handleEditSubmit" enctype="multipart/form-data" ref="element"
             v-click-outside="toggleFunction">
-            <div v-if="!state.uploadedImage"
+            <div v-if="!state.uploadedImage && !authStore.signedProfilePic"
                 class="max-w-sm mx-auto bg-white rounded-lg shadow-md overflow-hidden items-center">
                 <div class="px-4 py-6">
                     <div id="image-preview"
@@ -88,7 +97,7 @@ const removeUploadedImage = () => {
                     <div id="image-preview"
                         class="p-6 mb-4  bg-gray-100 border-dashed border-2 border-gray-400 rounded-lg items-center mx-auto text-center cursor-pointer">
                         <div class="max-w-sm group w-[250px] relative h-[250px] rounded-full overflow-hidden flex justify-center items-center">
-                            <img class=" h-full" :src="state.uploadedImage" />
+                            <img class=" h-full" :src="state.uploadedImage ? state.uploadedImage : authStore.signedProfilePic" />
                             <div class="w-[250px] h-[250px] absolute bg-gray-200 opacity-40 invisible group-hover:visible flex justify-center items-center text-4xl" 
                             @click="removeUploadedImage">
                                 <TrashBinIcon/>
@@ -99,7 +108,7 @@ const removeUploadedImage = () => {
                         <div class="w-full">
                             <button type="submit"
                                 class="w-full text-white bg-[#050708] hover:bg-[#050708]/90 focus:ring-4 focus:outline-none focus:ring-[#050708]/50 font-medium rounded-lg text-sm px-5 py-2.5 flex items-center justify-center mr-2 mb-2 cursor-pointer">
-                                Upload</button>
+                                {{!state.imageRemoved ? !state.imageRemoved && !state.uploadedImage ? 'Cancel': 'Upload' : 'Commit changes'}}</button>
                         </div>
                     </div>
                 </div>

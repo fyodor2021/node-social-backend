@@ -28,11 +28,13 @@ const state = reactive({
     comments: '',
     commentNum: 0,
     isLoading: false,
+    hasListener: false,
+    abortController: new AbortController
 })
 
 const handleScroll = (e) => {
     if (commentListRef.value.scrollTop + commentListRef.value.clientHeight === commentListRef.value.scrollHeight) {
-        axios.get('/comment', { params: { contentId: props.postResponse.post._id, offset: state.comments.length } })
+        axios.get('/comment', { params: { contentId: props.postResponse.object._id, offset: state.comments.length } })
             .then(res => {
                 console.log(res)
                 if (res.status === 200) {
@@ -43,56 +45,63 @@ const handleScroll = (e) => {
             })
 
     }
-    console.log(commentListRef.value.scrollTop + commentListRef.value.clientHeight === commentListRef.value.scrollHeight)
+    
 }
 
-const closeInputs = (value) => {
-    value = !value
-}
 
 onMounted(async () => {
     state.isLoading = true
-    await axios.get('/comment', { params: { contentId: props.postResponse.post._id, offset: 0 } })
+    await axios.get('/comment', { params: { contentId: props.postResponse.object._id, offset: 0 }, signal: state.abortController.signal })
         .then(res => {
             state.comments = res && res.data
+            state.isLoading = false
             setTimeout(() => {
                 commentListRef.value.addEventListener('scroll', handleScroll)
+                state.hasListener = true
             }, 1);
-            state.isLoading = false
         }).catch(error => {
             console.log(error)
         })
+
 })
 onBeforeUnmount(() => {
-    commentListRef.value.removeEventListener('scroll', handleScroll)
+    if (state.hasListener) {
+        commentListRef.value.removeEventListener('scroll', handleScroll)
+    } else {
+        state.abortController.abort()
+    }
 })
 </script>
 <template>
-    <div class="w-screen h-screen md:h-full bg-[#0000001f] top-0 flex justify-around items-center  fixed z-[999999]">
-        <div v-if="postResponse" class="p-d-container " v-click-outside="clickOutside">
-            <div class="h-[100%] flex justify-start items-start flex-col">
-                <BackIcon class="text-gray-500 w-16 h-16" @click="router.go('/')"/>
-                <Post :postResponse="postResponse" :isDetails="true" />
+    <div
+        class="w-screen h-[100%] min-h-[600px] overflow-auto bg-[#0000001f] top-0 left-0 flex justify-center md:justify-end items-center fixed z-[100] 3xl:mt-28 3xl:h-[90%]">
+        <div class="p-d-container relative" v-click-outside="clickOutside">
+            <div class="flex flex-col flex-[4] justify-start">
+                <BackIcon class="text-gray-500 w-10 h-10" @click="router.go('/')" />
+                <div class="flex h-full justify-center items-center flex-col">
+                    <img class="max-w-[100%]" :src="postResponse.object.signedPostPic" />
+                </div>
             </div>
-            <div class="flex flex-col justify-between h-full w-[45%] md:w-[100%]">
-                <div class="h-[80%] md:h-[80%]">
-                    <ContentUser :postDate="postResponse.post.date" :user="postResponse.post.user"
-                        :signedProfilePic="postResponse.signedProfilePic" />
+            <div class="flex h-[100%] flex-[2] flex-col justify-between md:w-[100%] mdh:w-[100%]  p-4">
+                <div>
+                    <div class="">
+                        <ContentUser :user="postResponse.object.user"/>
+                    </div>
                     <div class="font-bold text-sm">
-                        {{ postResponse.post.content }}
-                    </div>
-                    <div v-if="state.isLoading" class="w-full flex justify-center">
-                        <SpinnerIcon class="mt-12 w-12 h-12 flex justify-center items-center" />
-                    </div>
-                    <div v-else class="comment-list" ref="commentListRef">
-                        <CommentList v-if="state.comments" :comments="state.comments" />
+                        {{ postResponse.object.strContent }}
                     </div>
                 </div>
-                <div class="">
+                <div v-if="state.isLoading" class="w-full flex justify-center">
+                    <SpinnerIcon class="mt-12 w-12 h-12 flex justify-center items-center" />
+                </div>
+                <div v-else class="comment-list" ref="commentListRef">
+                    <CommentList v-if="state.comments" :comments="state.comments" />
+                </div>
+                <div>
                     <div class="w-[70%] md:w-1/4">
                         <LikeComment :contentResponse="postResponse" />
                     </div>
-                    <ReplyBox :contentId="postResponse.post._id" />
+                    <ReplyBox :isPost="true" :contentId="postResponse.object._id" />
                 </div>
             </div>
         </div>
@@ -101,18 +110,17 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .p-d-container {
-    width: 65%;
-    min-width: 900px;
     height: 80%;
+    width: 70%;
     display: flex;
-    padding-right: 1rem;
+    justify-content: space-between;
+    padding: 1rem;
     border-radius: .5rem;
     z-index: 9999999;
     background-color: white;
 }
 
 .comment-list {
-    height: 65%;
     overflow: auto;
 }
 
@@ -122,7 +130,8 @@ onBeforeUnmount(() => {
         margin-top: 112px;
     }
 }
-@media only screen and (max-width: 900px) {
+
+@media only screen and (max-width: 1300px) {
 
     .p-d-container {
         width: 100%;
@@ -132,9 +141,9 @@ onBeforeUnmount(() => {
         overflow-y: auto;
         flex-direction: column;
     }
-    .comment-list{
-        height: 90%;
+
+    .comment-list {
+        height: 100%;
     }
 }
-
 </style>

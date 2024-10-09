@@ -7,6 +7,7 @@ import ShareIcon from '~icons/material-symbols/share-outline'
 import commentIcon from '~icons/material-symbols/mode-comment-outline'
 import heartIcon from '~icons/mdi/heart-multiple-outline'
 import heartFillIcon from '~icons/mdi/heart-multiple'
+import router from '@/router';
 const authStore = useAuthStore();
 const props = defineProps({
     contentResponse: {
@@ -21,13 +22,15 @@ const props = defineProps({
     },
     isComment: {
         type: Boolean
+    },
+    handlePostClick:{
+        type: Function
     }
 })
-
 const state = reactive({
-    liked: props.contentResponse.liked,
-    likeCount: props.contentResponse.likeCount,
-    commentCount: props.contentResponse.commentCount,
+    liked: props.contentResponse.object.liked,
+    likeCount: props.contentResponse.object.likeCount,
+    commentCount: props.contentResponse.object.commentCount,
 })
 
 const handleLike = async () => {
@@ -68,11 +71,13 @@ const handleLike = async () => {
             </div>
             <div v-if="!isComment" class="flex items-center m-2">
                 <span @click="" class="hover:scale-125 duration-300">
-                    <commentIcon class="text-3xl" />
+                    <commentIcon class="text-3xl" @click="handlePostClick(contentResponse)"/>
                 </span>
                 <span class="text-xl ">{{ state.commentCount }}</span>
             </div>
-            <ShareIcon v-if="!isComment" @click="() => toggleShare(contentResponse)" class="text-3xl" />
+            <div class="text-3xl">
+                <ShareIcon v-if="!isComment" @click="() => toggleShare(contentResponse)"  />
+            </div>
             <div v-if="!isComment" @click="() => toggleSend(contentResponse)" class="flex items-center">
                 <span class="hover:scale-125 duration-300">
                     <i class="pi pi-send text-3xl m-2"></i>

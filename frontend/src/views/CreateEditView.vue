@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, onUnmounted, reactive, ref } from 'vue';
+import { onBeforeUnmount, onMounted, onUnmounted, onUpdated, reactive, ref } from 'vue';
 import { useAuthStore } from '@/store/auth';
 import { useDisplayStore } from '@/store/display'
 import EmojiPicker from 'vue3-emoji-picker'
@@ -8,6 +8,8 @@ import { useValMessageStore } from '@/store/valMessage';
 import axios from 'axios'
 import ContentUser from '@/components/ContentUser.vue';
 import Post from '@/components/Post.vue'
+import TrashBinIcon from '~icons/material-symbols/delete-outline'
+
 const authStore = useAuthStore();
 const valMessageStore = useValMessageStore();
 const element = ref(null)
@@ -26,30 +28,34 @@ const props = defineProps({
     isShare: {
         type: Boolean,
         default: false,
-    }
+    },
+
 
 })
 const state = reactive({
     uploadedImage: props.postResponse && props.postResponse.signedPostPic ? props.postResponse.signedPostPic : '',
     uploadedImageFile: null,
     displayEmo: false,
-    input: props.postResponse && props.postResponse.post.content ? props.isShare ? '' : props.postResponse.post.content : '',
-    imageRemoved: false
+    input: props.postResponse && props.postResponse.object.strContent ? props.isShare ? '' : props.postResponse.object.strContent : '',
+    inputLetterCount: 0,
+    valMessage: ''
 })
 
 const handleCancelClick = () => {
     if (props.postResponse) {
-        props.toggleEdit()
+        props.toggleFunction()
     } else {
         displayStore.toggleCreateView()
 
     }
 }
 const handleFileUpload = (e) => {
+    console.log('im here', e.target.files)
     state.uploadedImageFile = e.target.files[0]
     const reader = new FileReader();
     reader.onload = (e) => {
         state.uploadedImage = e.target.result
+        console.log(e.target.result)
     }
     reader.readAsDataURL(e.target.files[0])
 }
@@ -58,12 +64,16 @@ const toggleDisplayEmoji = () => {
 }
 const onSelectEmoji = (emoji) => {
     state.input = state.input + emoji.i
-    state.displayEmo = false
 }
 const handleSubmitPost = (e) => {
-    if (!state.input && !state.uploadedImage) {
-        valMessageStore.setValMessage('Please tell us more...')
-        return
+    if ((!state.input || !state.uploadedImage) && !props.postResponse) {
+        if (!state.input) {
+            state.valMessage = 'Please tell us more...'
+            return
+        } else {
+            state.valMessage = 'Upload a pic it will make your post brighter!'
+            return
+        }
     }
     const formData = new FormData();
     const postRequest = {
@@ -73,9 +83,8 @@ const handleSubmitPost = (e) => {
             lname: authStore.lname,
             email: authStore.email,
         },
-        content: state.input,
-        postId: props.postResponse ? props.postResponse.post._id : '',
-        imageRemoved: state.imageRemoved
+        strContent: state.input,
+        postId: props.postResponse ? props.postResponse.object._id : '',
     }
     formData.append('post', JSON.stringify(postRequest))
     if (state.uploadedImage) {
@@ -84,18 +93,49 @@ const handleSubmitPost = (e) => {
         }
     }
     if (props.postResponse) {
-        axios.put('/post', formData, {
-            headers: {
-                'Content-Type': " multipart/form-data"
+        if (props.isShare) {
+            const postRequest = {
+                user: {
+                    _id: authStore._id,
+                    fname: authStore.fname,
+                    lname: authStore.lname,
+                    email: authStore.email
+                },
+                strContent: state.input,
+                objContent: {
+                    _id: props.postResponse.object._id,
+                    user: props.postResponse.object.user,
+                    strContent: props.postResponse.object.strContent,
+                    fileName: props.postResponse.object.fileName,
+                    objContent: props.postResponse.object.objContent ?
+                        props.postResponse.object.objContent.object : ''
+                },
             }
-        }).then(res => {
-            console.log(res)
-            if (res && res.status === 204) {
+            axios.post('/post/share', postRequest).then(res => {
+                if (res && res.status === 201) {
+                    props.toggleFunction()
+                } else if (res && res.status == 200) {
+                    props.toggleFunction()
+                }
+            })
+        } else {
+        if(!state.uploadedImage && state.input === props.postResponse.object.strContent){
+            props.toggleFunction()
+        }else{
+            axios.put('/post', formData, {
+                headers: {
+                    'Content-Type': " multipart/form-data"
+                }
+            }).then(res => {
                 console.log(res)
-            } else if (res && res.status == 200) {
-                props.toggleEdit()
-            }
-        })
+                if (res && res.status === 201) {
+                    props.toggleFunction()
+                } else if (res && res.status == 200) {
+                    props.toggleFunction()
+                }
+            })
+        }
+        }
     } else {
         axios.post('/post', formData, {
             headers: {
@@ -111,59 +151,78 @@ const handleSubmitPost = (e) => {
         })
     }
 }
-const handleImageRemove = () => {
-    state.uploadedImage = ''
-    state.imageRemoved = true
+const handleInput = () => {
+    if (state.input.length >= 400) {
+        state.input = state.input.slice(0, 400)
+        state.inputLetterCount = 400
+    } else {
+        state.inputLetterCount = state.input.length
+    }
 }
-
+const handleRemoveUploadedImage = () => {
+    state.uploadedImage = ''
+    state.uploadedImageFile = ''
+}
+onUpdated(() => {
+})
 </script>
 <template>
     <div class="c-e-container text-gray-800 border border-gray-300 p-4 shadow-lg ">
         <form @submit.prevent="handleSubmitPost" enctype="multipart/form-data" class="wrapper" ref="element"
             v-click-outside="toggleFunction">
-            <ContentUser />
-            <div class="relative">
-                <div class="upload-container">
-                    <div v-if="!isShare">
-                        <input id="file-upload" name="image" type="file" @change="handleFileUpload" accept="image/*">
-                        <label for="file-upload" class="file-upload-label"><i @click="handleAttachClick"
-                                class="pi pi-paperclip text-3xl m-4"></i></label>
+            <!-- this is the create area -->
+            <div class="flex w-full justify-between items-center">
+                <div>
+                    <ContentUser />
+                </div>
+                <div class="relative">
+                    <div class="upload-container">
+                        <div v-if="!isShare && !postResponse">
+                            <input id="file-upload" name="image" type="file" @change="handleFileUpload"
+                                accept="image/*">
+                            <label for="file-upload" class="file-upload-label"><i @click="handleAttachClick"
+                                    class="pi pi-paperclip text-3xl mr-4"></i></label>
+                        </div>
+                        <i v-click-outside="() => state.displayEmo = false" @click="toggleDisplayEmoji" :native="true"
+                            :class="`pi pi-face-smile text-3xl`">
+                        </i>
                     </div>
-                    <button @click="toggleDisplayEmoji" :class="`pi pi-face-smile text-3xl`">
-                    </button>
+                    <div v-if="state.displayEmo" class="emoji-wrapper cursor-pointer">
+                        <EmojiPicker  v-click-outside="() => state.displayEmo = false" v-if="state.displayEmo" @select="onSelectEmoji" />
+                    </div>
+                    <div class="text-pink-500">{{ state.valMessage }}</div>
                 </div>
-                <div class="emoji-wrapper cursor-pointer">
-                    <EmojiPicker v-if="state.displayEmo" :native="true" @select="onSelectEmoji" />
-                </div>
-                <div class="text-pink-500">{{ valMessageStore.valMessage }}</div>
             </div>
             <div class="flex flex-col justify-space-between">
-                <textarea v-model="state.input" class="input post-body" placeholder="What's on your mind...">
-                </textarea>
-                <div v-if="!isShare">
-                    <div>
-                        <div v-if="state.uploadedImage" class="relative">
-                            <img class="opacity-35" :src="state.uploadedImage" />
-                            <button @click="handleImageRemove" class="remove-button">remove</button>
-                        </div>
-                        <div v-else class="w-full flex justify-center">
-                            <img v-if="postResponse && postResponse.signedPostPic && state.uploadedImage"
-                                :src="postResponse && postResponse.signedPostPic" rel="preload" />
-                            <span v-else>Upload an image, it will make you post brighter!</span>
-                        </div>
-                    </div>
-                    <div class="buttons flex justify-end align-center m-2">
-                        <div>
-                            <button @click="handleCancelClick" class="button mr-1">Cancel</button>
-                            <button type="submit" class="button">
-                                {{ postResponse ?
-                                    'Edit' : 'Post' }}</button>
-                        </div>
+                <!-- this is the Edit / share area -->
+                <div class="border-b-[1px] border-[rgba(44,44,44,0.185)] flex flex-col">
+                    <textarea v-model="state.input" @input="handleInput" class="input post-body"
+                        placeholder="What's on your mind...">
+                     </textarea>
+                    <div class="w-full flex justify-end">
+                        {{ state.inputLetterCount }}/400
                     </div>
                 </div>
-                <div v-if="postResponse">
-
-                    <Post :postResponse="postResponse" :isShare="isShare" />
+                <div v-if="(postResponse && isShare) || postResponse && postResponse.object.objContent">
+                    <Post :postResponse="postResponse" :isShare="true" />
+                </div>
+                <div v-else class="w-full flex justify-center items-center p-4 relative group">
+                    <img v-if="state.uploadedImage || (postResponse && !isShare)"
+                        :src="state.uploadedImage ? state.uploadedImage : postResponse.object.signedPostPic"
+                        class="w-full h-full" />
+                    <div v-else>Josedor team believes that a picture is worth a thousand words</div>
+                    <div v-if="state.uploadedImage" @click="handleRemoveUploadedImage"
+                        class="w-full h-full absolute bg-black 
+                    flex justify-center items-center text-[5rem] opacity-60 invisible group-hover:visible">
+                        <TrashBinIcon />
+                    </div>
+                </div>
+                <div class="buttons flex justify-end align-center m-2">
+                    <div>
+                        <button @click="handleCancelClick" class="button mr-1">Cancel</button>
+                        <button type="submit" class="button">
+                            {{ postResponse && isShare ? 'Share' : postResponse ? 'edit' : 'Create' }}</button>
+                    </div>
                 </div>
             </div>
         </form>
@@ -188,7 +247,7 @@ const handleImageRemove = () => {
 
 .wrapper {
     display: flex;
-    width:800px;
+    width: 800px;
     height: 80%;
     flex-direction: column;
     background-color: rgb(255, 255, 255);
@@ -211,7 +270,6 @@ const handleImageRemove = () => {
 
 .input {
     padding: 1rem;
-    border-bottom: 1px solid rgba(44, 44, 44, 0.185);
 }
 
 .post-body {

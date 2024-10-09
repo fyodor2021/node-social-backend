@@ -7,25 +7,19 @@ import { useAuthStore } from '@/store/auth';
 
 import axios from 'axios';
 import { useDisplayStore } from '@/store/display';
+import ContentOptions from './ContentOptions.vue';
 const props = defineProps({
     postResponse: {
         type: Object,
         required: true
     },
-    sameUser: {
-        type: Boolean,
-        default: false
-    },
-    user: {
-        type: Object,
-    },
     isShare: {
         type: Boolean,
         default: false
     },
-    isDetails:{
+    isDetails: {
         type: Boolean,
-        default:false
+        default: false
     },
     toggleSend: {
         type: Function
@@ -36,7 +30,7 @@ const props = defineProps({
     toggleEdit: {
         type: Function
     },
-    handlePostClick:{
+    handlePostClick: {
         type: Function
     }
 })
@@ -45,77 +39,88 @@ const displayStore = useDisplayStore();
 const state = reactive({
     liked: false,
     displayOptions: false,
-
+    postStrContent: props.postResponse.object.strContent.slice(0, 400)
 })
-
 const authStore = useAuthStore();
 const handlePostDelete = () => {
-    axios.delete('post/', { params: { postId: props.postResponse.post._id } }).then(res => {
+    axios.delete('post/', { params: { postId: props.postResponse.object._id } }).then(res => {
         if (res && res.status === 204) {
             router.go('/')
         }
     })
 }
-console.log(props.isShare, props.isDetails)
+const toggleOptions = () => {
+    state.displayOptions = !state.displayOptions
+}
 </script>
 <template>
-    <div :class="`content-container `">
-        <div :class="`content-wrapper relative `">
-            <div v-if="!isDetails" class="flex justify-between p-2 items-center">
-                <ContentUser :postDate="postResponse.post.date"
-                    :user="sameUser ? '' : user ? user : postResponse.post.user"
-                    :signedProfilePic="sameUser ? '' : user ? user.signedProfilePic : postResponse.signedProfilePic" />
-                <i @click="() => state.displayOptions = !state.displayOptions"
-                    v-if="postResponse.post.user._id === authStore._id" class="pi pi-ellipsis-v text-2xl text-gray-400">
-                </i>
-                <div v-if="state.displayOptions" class="crud-menu">
-                    <div class="triangle f"></div>
-                    <div class="crud-item" @click="handlePostDelete">
-                        <div class="w-full pt-1 pb-1 pr-2 pl-2 cursor-pointer flex items-center">
-                            <i class="pi pi-times-circle mr-2 text-red-500"></i><span class="text-white">Delete</span>
+    <div :class="`content-container`">
+        <div :class="`content-wrapper relative p-4 border border-white`">
+            <div class="bg-white p-4 text-black rounded-[1rem] max-h-[800px]">
+                <div v-if="!postResponse.object.objContent" class="cursor-pointer max-h-[600px]">
+                    <div @click="() => handlePostClick(postResponse)" v-if="postResponse.object.signedPostPic"
+                        :class="`image-container`">
+                        <img class="max-w-[550px] max-h-[350px]" :src="postResponse.object.signedPostPic" rel="preload" />
+                    </div>
+                    <div class="flex w-full justify-between items-center relative">
+                        <div @click="() => handlePostClick(postResponse)" class="w-[95%]">
+                            <div class="float-left p-2 pl-0 bg-black text-white p-2 m-2 ml-0 rounded-xl" >
+                                <ContentUser :user="postResponse.object.user" :isPost="true" />
+                            </div>
+                            <div class="text-justify pt-2 break-all">
+                                <span>
+                                    {{ state.postStrContent }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="w-[5%]" v-if="!isShare && !isDetails"
+                            @click="() => state.displayOptions = !state.displayOptions">
+                            <ContentOptions :contentResponse="postResponse"
+                                :editContent="() => toggleEdit(postResponse)" :deleteContent="handlePostDelete"
+                                :displayOptions="state.displayOptions" :toggleOptions="toggleOptions" />
                         </div>
                     </div>
-                    <div class="crud-item" @click="() => state.displayEdit = !state.displayEdit">
-                        <div class="w-full pt-1 pb-1 pr-2 pl-2 cursor-pointer flex items-center">
-                            <i class="pi pi-pen-to-square mr-2 text-green-500"></i><span class="text-white">Edit</span>
+                </div>
+                <div v-else :class="`w-full flex justify-center items-center max-h-[750px] flex-col ${isDetails ? 'h-full' : ''}`">
+                    <div class="w-full pt-0 ">
+                        <div class="flex">
+                            <div class=" flex items-center w-full">
+                                <ContentUser :user="postResponse.object.user" :isPost="true" />
+                                <span v-if="!isDetails && postResponse.object.objContent"
+                                    class="button h-10 bg-gray-400 rounded-none">
+                                    @Reposted
+                                </span>
+                            </div>
+                            <div v-if="!isShare && !isDetails" class="flex justify-center items-center"
+                                @click="() => state.displayOptions = !state.displayOptions">
+                                <ContentOptions :contentResponse="postResponse"
+                                    :editContent="() => toggleEdit(postResponse)" :deleteContent="handlePostDelete"
+                                    :displayOptions="state.displayOptions" :toggleOptions="toggleOptions" />
+                            </div>
+                        </div>
+                        <div v-if="state.postStrContent"
+                            class="text-[.90rem] ml-4 w-[90%] text-justify break-all pb-2">
+                            <span>
+                                {{ state.postStrContent }}
+                            </span>
                         </div>
                     </div>
+                    <div :class="`w-3/4 ${isDetails ? 'h-full w-full' : ''}`">
+                        <Post :postResponse="postResponse.object.objContent" :user="postResponse.object.objContent.user"
+                            :handlePostClick="handlePostClick" :isShare="true" />
+                    </div>
+                </div>
+
+                <div class="w-1/4 ml-7 p-1">
+                    <LikeComment v-if="!isShare && !isDetails" :toggleSend="toggleSend" :toggleShare="toggleShare"
+                        :contentResponse="postResponse" :handlePostClick="handlePostClick" />
                 </div>
             </div>
-            <div @click="() => handlePostClick(postResponse)" class="p-2 pr-12 pl-12 cursor-pointer">
-                <div  v-if="!isDetails" class="font-bold text-lg">
-                    {{ postResponse.post.content }}
-                </div>
-                <div v-if="postResponse.signedPostPic" class="image-container">
-                    <img :src="postResponse.signedPostPic" rel="preload" />
-                </div>
-            </div>
-            <div class="w-1/4 ml-12">
-                <LikeComment v-if="!isShare && !isDetails" :toggleSend="toggleSend" :toggleShare="toggleShare"
-                :contentResponse="postResponse" />
-            </div>
+
         </div>
     </div>
 </template>
-<style scoped>
-.crud-menu {
-    position: absolute;
-    right: 1.25rem;
-    top: 5.6rem;
-    opacity: .8;
-    padding: .5rem;
-    border-radius: .5rem 0 .5rem .5rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: flex-end;
-}
-
-.crud-item {
-    background-color: rgb(0, 0, 0);
-
-}
-</style>
+<style scoped></style>
 
 <!-- .tracker {
     height: 20px;

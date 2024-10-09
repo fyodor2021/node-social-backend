@@ -39,11 +39,13 @@ postRouter.post(
           lname: postRequestJson.user.lname,
           email: postRequestJson.user.email,
         },
-        content: postRequestJson.content ? postRequestJson.content : "",
+        strContent: postRequestJson.strContent
+          ? postRequestJson.strContent
+          : "",
       };
       const post = new postModel(postRequest);
       if (req.file) {
-        console.log(req.file)
+        console.log(req.file);
         post.fileName = req.file.filename;
       }
       await post.save();
@@ -53,7 +55,32 @@ postRouter.post(
     }
   }
 );
-
+postRouter.post("/share", async (req, res) => {
+  const objContent = req.body.objContent;
+  console.log(objContent)
+  if (req.body.user && objContent && objContent._id && objContent.user && objContent.strContent) {
+    const post = postModel.findOne({ _id: objContent._id });
+    if (post) {
+      const postRequest = new postModel({
+        user: req.body.user,
+        strContent: req.body.strContent
+          ? req.body.strContent
+          : "",
+        objContent: objContent
+      });
+      try{
+        await postRequest.save();
+        res.status(201).send('post was shared')
+      }catch(err){
+        res.status(409).send(err.toString())
+      }
+    } else {
+      res.status(409).send("can't locate resources to perform operation");
+    }
+  } else {
+    res.status(409).send("information needed to perform process not present");
+  }
+});
 postRouter.get("/id", async (req, res) => {
   const post = await postModel.findOne({ _id: req.query.postId }).exec();
   if (post) {
@@ -77,7 +104,7 @@ postRouter.get("/user/id/", authenticateToken, async (req, res) => {
   const postResponse = [];
   if (posts) {
     for (let post of posts) {
-      postResponse.push(await preparePostNoUser(post, req.query.userId));
+      postResponse.push(await preparePostResponse(post, req.query.userId));
     }
     return res.status(200).send(postResponse);
   } else {
@@ -88,9 +115,11 @@ postRouter.get("/user/id/", authenticateToken, async (req, res) => {
 postRouter.get("/", authenticateToken, async (req, res) => {
   console.log(req.query);
   const posts = await postModel
-    .find({ "user._id": { $ne: new mongoose.Types.ObjectId(req.query.userId) } })
+    .find({
+      "user._id": { $ne: new mongoose.Types.ObjectId(req.query.userId) },
+    })
     .skip(req.query.offset)
-    .limit(4)
+    .limit(3)
     // .sort({date: -1})
     .exec();
   const postResponse = [];
@@ -109,8 +138,8 @@ postRouter.put(
   upload.single("image"),
   async (req, res) => {
     const postRequestJson = JSON.parse(req.body.post);
-
-    if (postRequestJson.user && postRequestJson.content) {
+    console.log(postRequestJson)
+    if (postRequestJson.user && postRequestJson.strContent) {
       const [user, post] = await Promise.all([
         userModel
           .findOne({ _id: postRequestJson.user._id })
@@ -123,14 +152,14 @@ postRouter.put(
             post,
             {
               user: {
-                _id: user._id,
+                _id: user._id.toString(),
                 fname: user.fname,
                 lname: user.lname,
                 email: user.email,
               },
-              content:
-                postRequestJson && postRequestJson.content
-                  ? postRequestJson.content
+              strContent:
+                postRequestJson && postRequestJson.strContent
+                  ? postRequestJson.strContent
                   : "",
               fileName:
                 req.file && req.file.filename
@@ -145,7 +174,7 @@ postRouter.put(
           if (editedPost) {
             if (
               editedPost.fileName !== post.fileName ||
-              (postRequestJson.fileName && postRequestJson.imageRemoved)
+              (postRequestJson.fileName)
             ) {
               await deleteImage(post.fileName);
             }
@@ -192,28 +221,29 @@ postRouter.delete("/", async (req, res) => {
     res.status(409).send("information needed to perform process not present");
   }
 });
-async function preparePostNoUser(post, userId) {
-  const [like, commentCount, likeCount, signedPostPic] = await Promise.all([
-    likeModel.findOne({
-      $and: [{ userId }, { contentId: post._id }],
-    }),
-    commentModel.countDocuments({
-      contentId: post._id,
-    }),
-    likeModel.countDocuments({
-      contentId: post._id,
-    }),
-    getSignedURL(post.fileName),
-  ]);
-  const postResponse = {
-    post,
-    commentCount,
-    likeCount,
-    liked: like ? true : false,
-    signedPostPic,
-  };
-  return postResponse;
-}
+// async function preparePostNoUser(post, userId) {
+//   const [like, commentCount, likeCount, signedPostPic] = await Promise.all([
+//     likeModel.findOne({
+//       $and: [{ userId }, { contentId: post._id }],
+//     }),
+//     commentModel.countDocuments({
+//       contentId: post._id,
+//     }),
+//     likeModel.countDocuments({
+//       contentId: post._id,
+//     }),
+//     getSignedURL(post.fileName),
+//   ]);
+//   post.objContent = post.objContent ? await preparePostResponse(post.objContent) : ''
+//   const postResponse = {
+//     post,
+//     commentCount,
+//     likeCount,
+//     liked: like ? true : false,
+//     signedPostPic,
+//   };
+//   return postResponse;
+// }
 async function preparePostResponse(post, userId) {
   const postUser = await userModel.findOne({ _id: post.user._id }).exec();
   if (postUser) {
@@ -231,14 +261,29 @@ async function preparePostResponse(post, userId) {
         postUser.profilePic ? getSignedURL(postUser.profilePic) : "",
         getSignedURL(post.fileName),
       ]);
-
+      post.objContent = post.objContent ? await preparePostResponse(post.objContent) : ''
     const postResponse = {
-      post,
-      commentCount,
-      likeCount,
-      liked: like ? true : false,
-      signedPostPic,
-      signedProfilePic,
+      object:{
+        _id:post._id,
+        date: post.date,
+        fileName: post.fileName,
+        modified: post.modified,
+        status: post.status,
+        strContent: post.strContent,
+        objContent: post.objContent,
+        signedPostPic,
+        commentCount,
+        likeCount,
+        liked: like ? true : false,
+        user:{
+          _id:post.user._id,
+          fname:post.user.fname,
+          lname:post.user.lname,
+          email:post.user.email,
+          tag:postUser.tag,
+          signedProfilePic
+        }
+      },
     };
     return postResponse;
   }

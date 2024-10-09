@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeMount, reactive, onUnmounted, watch, onUpdated, onMounted, onRenderTriggered } from 'vue';
+import { onBeforeMount, reactive, onUnmounted, watch, onUpdated, onMounted, onRenderTriggered, onBeforeUnmount } from 'vue';
 import axios from 'axios'
 import PostList from '@/components/PostList.vue';
 import Profile from '@/components/Profile.vue'
@@ -7,6 +7,7 @@ import Loader from '@/components/Loader.vue';
 import { useAuthStore } from '@/store/auth';
 import router from '@/router';
 import ProfilePicEdit from '@/components/ProfilePicEdit.vue';
+import FollowSuggestions from '@/components/FollowSuggestions.vue';
 const authStore = useAuthStore();
 const props = defineProps({
     userId: {
@@ -23,7 +24,7 @@ const state = reactive({
     profilePicEdit:false
 })
 async function handleScroll(e) {
-    if (window.scrollY + window.innerHeight >= document.body.scrollHeight + 112) {
+    if (window.scrollY + window.innerHeight >= document.body.scrollHeight + 16) {
         axios.get('/post/user/id/', {
             params: {
                 offset: state.posts.length,
@@ -61,16 +62,17 @@ async function getUserData(userId) {
         state.isLoaded = true
     }
 }
-onUnmounted(() => {
+onBeforeUnmount(() => {
     window.removeEventListener('scroll', handleScroll)
 })
 console.log(state)
 </script>
 <template>
     <ProfilePicEdit v-if="state.profilePicEdit" :toggleFunction="() => state.profilePicEdit = false" />
-    <div v-if="state.isLoaded" class="w-full mx-auto ">
+    <div v-if="state.isLoaded" class="w-full mx-auto mt-[1rem]">
         <Profile v-if="state.userResponse" :userResponse="state.userResponse" :toggleProfilePicEdit="() => state.profilePicEdit = !state.profilePicEdit"/>
         <PostList v-if="state.posts" :posts="state.posts" :sameUser="state.sameUser" :user="state.userResponse.user"  />
+        <FollowSuggestions/>
     </div>
     <Loader v-else />
 </template>

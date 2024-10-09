@@ -56,8 +56,17 @@ userRouter.post("/signup", async (req, res) => {
     res.status(409).send("Please fill the required fields.");
   }
 });
+userRouter.get("/suggestions", authenticateToken, async (req, res) => {
+  const users = await userModel.find({}).limit(8).skip(req.query.offset).exec();
+  const userResponse = [];
+  for (let user of users) {
+    let { _id, fname, lname, profilePic, tag } = user;
+    profilePic = await getSignedURL(user.profilePic);
+    userResponse.push({ _id, fname, lname, signedProfilePic: profilePic, tag });
+  }
+  res.status(200).send(userResponse);
+});
 userRouter.get("/id", authenticateToken, async (req, res) => {
-  console.log(req.query);
   if (req.query.visitedUserId && req.query.userId) {
     const visitedObjectId = new mongoose.Types.ObjectId(
       req.query.visitedUserId
@@ -66,7 +75,7 @@ userRouter.get("/id", authenticateToken, async (req, res) => {
       userModel.findOne({ _id: visitedObjectId }).exec(),
       followModel.find({ "sender._id": visitedObjectId }),
       followModel.find({ "receiver._id": visitedObjectId }),
-      postModel.countDocuments({ "user._id": visitedObjectId }),
+      postModel.countDocuments({ "user._id": req.query.visitedUserId }),
     ]);
     if (user) {
       let followedByLoggedUser = false;
@@ -110,30 +119,31 @@ userRouter.put(
   [authenticateToken, upload.single("image")],
   async (req, res) => {
     const userRequestJson = JSON.parse(req.body.data);
-    console.log(userRequestJson);
-    if (userRequestJson.userId && userRequestJson.imageRemoved != null) {
+    if (userRequestJson.userId) {
       const user = await userModel.findOne({ _id: userRequestJson.userId });
       if (user) {
         try {
-          if (user.profilePic) {
+          if (user.profilePic || userRequestJson.imageRemoved) {
             await deleteImage(user.profilePic);
           }
           userModel
             .findByIdAndUpdate(
               user,
               {
-                profilePic: req.file.filename,
+                profilePic:
+                  req.file && req.file.filename ? req.file.filename : "",
               },
               { returnOriginal: false }
             )
             .then(async (response) => {
-              const sigendProfilePic = await getSignedURL(response.profilePic)
+              const sigendProfilePic = await getSignedURL(response.profilePic);
               res.status(201).json(sigendProfilePic);
             });
         } catch (err) {
-          res
-            .status(409)
-            .send("error occured while performing operation", err.toString());
+          userModel.findByIdAndUpdate(user, {
+            profilePic: "",
+          });
+          res.status(409).send("error occured while performing operation");
         }
       } else {
         res.status(409).send("user not found");

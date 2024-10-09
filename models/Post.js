@@ -5,9 +5,12 @@ const postSchema = mongoose.Schema({
         type: Object,
         require: true,
     },
-    content:{
+    strContent:{
         type: String,
         require: true,
+    },
+    objContent:{
+        type: Object,
     },
     date: {
         type: Date,

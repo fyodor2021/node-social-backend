@@ -1,6 +1,8 @@
 <script setup>
 import { onMounted,ref } from 'vue';
 import pageNotFound from '../assets/img/page-not-found.png'
+import router from '@/router';
+import Gohome from '@/assets/img/go-home.png'
 const active = ref(false)
 onMounted(() => {
     active.value = true
@@ -11,6 +13,7 @@ console.log(active)
     <div ref="page" class="p-n-f-container">
         <div class="wrapper">
             <img width="400px" :src="pageNotFound" alt="page not found"/>
+            <button class="w-[300px]" alt="go home" @click="() => router.push('/')"><img :src="Gohome"/></button>
         </div>
     </div>
 </template>
@@ -29,6 +32,7 @@ console.log(active)
     height: 100vh;
     align-items: center;
     justify-content: center;
+    flex-direction: column;
 }
 
 </style>

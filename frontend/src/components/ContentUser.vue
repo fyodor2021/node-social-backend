@@ -9,9 +9,6 @@ const props = defineProps({
     user: {
         required: false
     },
-    signedProfilePic: {
-        type: String,
-    },
     contentDate: {
         type: String,
     },
@@ -27,7 +24,7 @@ const props = defineProps({
         type: Boolean,
         default: false
     }
-    , isOnline: {
+    ,isOnline: {
         type: Boolean,
         default: false
     },
@@ -38,26 +35,36 @@ const props = defineProps({
     isComment: {
         type:Boolean,
         default: false
-    }
+    },
+    isPost: {
+        type:Boolean,
+        default: false
+    },
 })
 const handleUserClick = () => {
-    if (!props.isChatView)
-        router.push({ name: 'userDetails', params: { userId: props.user._id } })
+    if (!props.isChatView){
+        if(props.user){
+            router.push({ name: 'userDetails', params: { userId: props.user._id } })
+        }else{
+            router.push({ name: 'userDetails', params: { userId: authStore._id } })
+        }
+    }
 }
 </script>
 <template>
     <div @click="handleUserClick"
-        :class="`flex items-center justify-between cursor-pointer p-2  ${selected ? 'bg-black' : ''}`">
-        <div v-if="user" class="flex items-center cursor-pointer justify-center ">
-            <div :class="`profile-pic-container ${isComment ? 'w-8 h-8 mr-[6px]' : ''}`">
-                <img v-if="signedProfilePic" :src="signedProfilePic ? signedProfilePic : profile" :alt="user.fname"
+        :class="`flex h-full items-center justify-between cursor-pointer  ${selected ? 'bg-black' : ''}`">
+        <div v-if="user" :class="`flex h-full items-center cursor-pointer justify-center px-1`">
+            <div :class="`profile-pic-container ${isComment ? 'w-8 h-8 mr-[6px]' : ''} ${isPost ? 'w-12 h-12 mr-[6px]' : ''}`">
+                <img :src="user.signedProfilePic ? user.signedProfilePic : profile" :alt="user.fname"
                     rel="preload" />
-                <img v-else :src="profile" alt="sara" class="w-20" rel="preload" />
             </div>
-            <div :class="`${isComment ? 'text-[.75rem]' : ''}`">
-                <h1 :class="`font-bold ${selected ? 'text-white' : ''}`"> {{ capName(user.fname) }} {{
-                    capName(user.lname) }}</h1>
-                <h2 :class="`text-gray-700 ${selected ? 'text-gray-600' : ''}`">{{ user.tag ? '@' + user.tag : '' }}
+            <div :class="`${isComment ? 'text-[.75rem]' : ''}  ${ isPost ? 'h-full flex flex-col justify-start items-start' : ''}`">
+                <h1 :class="`font-bold ${selected ? 'text-white' : ''}`">
+                     {{ capName(user.fname) }} {{capName(user.lname) }}
+                    </h1>
+                <h2 :class="`text-gray-700 text-[.85rem] ${selected ? 'text-gray-600' : ''}`">
+                    {{ user.tag ? '@' + user.tag : '' }}
                 </h2>
                 {{ contentDate ? new Date(contentDate).toLocaleString() : '' }}
 

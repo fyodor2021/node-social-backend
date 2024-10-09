@@ -40,7 +40,7 @@ const handleUserSelect = (user) => {
 <style scoped>
 .search-container {
     position: fixed;
-    width: 100vw;
+width: 100vw;
     height: 100vh;
 
     z-index: 9999;

@@ -1,53 +1,71 @@
 <script setup>
-import { onMounted, onUnmounted, reactive, } from 'vue';
+import { onBeforeMount, onBeforeUnmount, onMounted, onUnmounted, reactive, ref, } from 'vue';
 import axios from 'axios'
 import PostList from '@/components/PostList.vue';
 import Loader from '@/components/Loader.vue';
 import { useAuthStore } from '@/store/auth';
-import PostDetailsView from './PostDetailsView.vue';
+import FollowSuggestions from '@/components/FollowSuggestions.vue';
 const state = reactive({
   posts: [],
   isLoading: true,
-
+  disableScroll: false,
 })
 
 const authStore = useAuthStore()
-async function handleScroll(e) {
-  if (window.scrollY + window.innerHeight >= document.body.scrollHeight) {
+
+function handleScroll(e) {
+  const marginTop = window.innerWidth < 1775 ? 112 : 0
+  if (window.scrollY + window.innerHeight >= document.body.scrollHeight + marginTop) {
     axios.get('/post/', { params: { offset: state.posts.length } }).then((res) => {
       state.posts = res && [...state.posts, ...res.data]
     })
   }
+  // console.log({
+  //   scrolltop: window.scrollY,
+  //   clientHeight: window.innerHeight,
+  //   scrollHeight: document.body.scrollHeight,
+  //   combined: window.scrollY + window.innerHeight
+  // })
 }
-
-onMounted(async () => {
+const toggleParentScroll = () => {
+  console.log('im here')
+  state.disableScroll = !state.disableScroll
+}
+onMounted(() => {
   axios.get('/post/', { params: { offset: 0 } }).then(res => {
     state.posts = res && res.data
     state.isLoading = false
+    setTimeout(() => {
+      window.addEventListener('scroll', handleScroll)
+    }, 1);
   })
-  window.addEventListener('scroll', handleScroll)
 })
 
-onUnmounted(() => {
+onBeforeUnmount(() => {
   window.removeEventListener('scroll', handleScroll)
 })
-
 </script>
 <template>
-  <div class="h-container">
-    <div class=" mx-auto w-full">
+  <div :class="`h-container`">
+    <div :class="` mx-auto w-full ${state.disableScroll ? 'overflow-hidden' : ''}`">
       <Loader v-if="state.isLoading" />
-      <PostList v-else :posts="state.posts" />
-    </div>
+      <div v-else>
+        <div class=" mx-auto max-w-[600px]">
+          <PostList  :posts="state.posts" />
+        </div>
+        <FollowSuggestions/>
+      </div>
+    </div> 
   </div>
 </template>
 <style scoped>
-.h-container{
+.h-container {
   padding-top: 1rem;
 }
+
 @media only screen and (max-width:1775px) {
-    .h-container {
-      margin-top: 112px;
-    }
+  .h-container {
+    margin-top: 112px;
+  }
 }
 </style>

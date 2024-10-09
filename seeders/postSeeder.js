@@ -12,7 +12,7 @@ function generatePosts(user) {
         lname: user.lname,
         email: user.email,
       },
-      content:
+      strContent:
         '"Success is not final, failure is not fatal: It is the courage to continue that counts." – Winston Churchill. Stay motivated and keep pushing forward, no matter the obstacles you face. 🚀💪 #Inspiration #MotivationMonday',
       fileName: 'success.jpg',
       status: "public",
@@ -25,7 +25,7 @@ function generatePosts(user) {
         email: user.email,
       },
       fileName: "honey.jpg",
-      content:
+      strContent:
         "'Did you know? Honey never spoils. Archaeologists have found pots of honey in ancient Egyptian tombs that are over 3,000 years old and still perfectly edible! 🍯🐝 #FunFact #DidYouKnow",
       status: "public",
     }),
@@ -37,7 +37,7 @@ function generatePosts(user) {
         email: user.email,
       },
       fileName: "water.jpg",
-      content:
+      strContent:
         "Tip of the Day: Stay hydrated! Drinking enough water can boost your energy levels and improve concentration. Aim for at least 8 glasses a day. 💧💪 #HealthTips #StayHydrated",
       status: "public",
     }),
@@ -50,7 +50,7 @@ function generatePosts(user) {
       },
       fileName: "film-set.png",
 
-      content:
+      strContent:
         "Here’s a sneak peek behind the scenes of our latest project! We’re excited to share more details soon. Stay tuned for updates! 🎥👀 #BehindTheScenes #SneakPeek",
       status: "public",
     }),
@@ -63,7 +63,7 @@ function generatePosts(user) {
       },
       fileName: "customer.jpeg",
 
-      content:
+      strContent:
         "We love hearing from our amazing customers! Here’s what [Customer’s Name] had to say about their recent experience: 'The service was top-notch, and I couldn't be happier with my purchase!' Thank you for the feedback, [Customer’s Name]! 🌟🙌 #CustomerSpotlight #Testimonial",
       status: "public",
     }),
@@ -76,7 +76,7 @@ function generatePosts(user) {
       },
       fileName: "webinar.jpeg",
 
-      content:
+      strContent:
         "Exciting news! We’re hosting a webinar on [Date] about [Topic]. Join us for insights, tips, and a Q&A session with industry experts. Register now to secure your spot! 🌐📅 #Webinar #EventAnnouncement",
       status: "public",
     }),
@@ -88,7 +88,7 @@ function generatePosts(user) {
         email: user.email,
       },
       fileName: "book.jpg",
-      content:
+      strContent:
         "Looking for your next great read? Check out [Book Title] by [Author]. It's a captivating story that will keep you hooked from start to finish. 📚✨ Have you read it? Share your thoughts! #BookRecommendation #MustRead",
       status: "public",
     }),
@@ -101,7 +101,7 @@ function generatePosts(user) {
       },
       fileName: "weekend.jpg",
 
-      content:
+      strContent:
         "Happy weekend, everyone! 🎉 How are you planning to spend your time? Whether it’s relaxing at home or exploring new places, make sure to enjoy every moment. #WeekendVibes #TGIF",
       status: "public",
     }),
@@ -113,7 +113,7 @@ function generatePosts(user) {
         email: user.email,
       },
       fileName: "learning.jpg",
-      content:
+      strContent:
         "Challenge of the Week: Try to learn 5 new words in a different language and use them in a sentence by Friday! 🌍📚 Share your progress and new favorite words with us! #LanguageChallenge #FunChallenge",
       status: "public",
     }),
@@ -126,7 +126,7 @@ function generatePosts(user) {
       },
       fileName: "habit.jpg",
 
-      content:
+      strContent:
         "Start a new healthy habit today: Incorporate a 10-minute walk into your daily routine. 🚶‍♀️🚶‍♂️ It’s a great way to clear your mind and get some fresh air. What’s your favorite way to stay active? #HealthyHabits #FitnessTips",
       status: "public",
     }),
@@ -139,7 +139,7 @@ function generatePosts(user) {
       },
       fileName: "phone-battery.png",
 
-      content:
+      strContent:
         "Tech Tip: To save battery life on your smartphone, turn off background app refresh and reduce screen brightness. 📱🔋 These simple adjustments can make a big difference! What are your go-to tips for saving battery? #TechTip #SmartphoneHacks",
       status: "public",
     }),
@@ -152,7 +152,7 @@ function generatePosts(user) {
       },
       fileName:"thinker.jpeg",
 
-      content:
+      strContent:
         "'The best way to predict the future is to invent it.' – Alan Kay. Take control of your destiny and start building the future you envision today. 🌟✨ #QuoteOfTheDay #Inspiration",
       status: "public",
     }),
@@ -165,7 +165,7 @@ function generatePosts(user) {
       },
       fileName: "dog.jpg",
 
-      content:
+      strContent:
         "Meet [Pet’s Name], our adorable office mascot! 🐶🐱 They always brighten up our day. Share a photo of your pets and tell us what makes them special! #PetFeature #OfficePets",
       status: "public",
     }),
@@ -177,7 +177,7 @@ function generatePosts(user) {
         email: user.email,
       },
       fileName: "weekend.jpg",
-      content:
+      strContent:
         "Dreaming of a quick escape? How about a weekend getaway to [Destination]? 🏞️ From scenic trails to charming local shops, it’s the perfect place to unwind and explore. Where’s your favorite weekend destination? #TravelTuesday #WeekendGetaway",
       status: "public",
     }),

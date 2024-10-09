@@ -39,16 +39,17 @@ const state = reactive({
     displayReply: false,
     isLoading: false,
     isViewMoreLoading: false,
-    commentContent: props.commentResponse.comment.content.slice(0, 150),
+    commentContent: props.commentResponse.object.content &&
+        props.commentResponse.object.content.slice(0, 150),
 })
 const handleContentClick = () => {
     if (state.displayDes) {
         props.openCommentFunc()
     } else {
-        props.openCommentFunc(props.commentResponse.comment._id)
+        props.openCommentFunc(props.commentResponse.object._id)
         if (!state.comments.length > 0) {
             state.isLoading = true
-            axios.get('/comment/id', { params: { commentId: props.commentResponse.comment._id, offset: 0 } }).then((res) => {
+            axios.get('/comment/id', { params: { commentId: props.commentResponse.object._id, offset: 0 } }).then((res) => {
                 if (res.data) {
                     state.comments = res.data
                     state.isLoading = false
@@ -62,62 +63,78 @@ const handleContentClick = () => {
 }
 const handleSeeMore = () => {
     state.isViewMoreLoading = true
-    axios.get('/comment/id', { params: { commentId: props.commentResponse.comment._id, offset: state.comments.length } }).then((res) => {
+    axios.get('/comment/id', { params: { commentId: props.commentResponse.object._id, offset: state.comments.length } }).then((res) => {
         if (res.data) {
             state.comments = [...state.comments, ...res.data]
             console.log(res.data)
             state.isViewMoreLoading = false
-
         }
     })
 }
 onUpdated(() => {
-    if (props.commentResponse.comment._id === props.openComment) {
+    if (props.commentResponse.object._id === props.openComment) {
         state.displayDes = true
     } else {
         state.displayDes = false
     }
 })
 const handleCommentDelete = () => {
-    axios.delete('comment/', { params: { commentId: props.commentResponse.comment._id } })
+    axios.delete('comment/', { params: { commentId: props.commentResponse.object._id } })
         .then(res => {
             if (res && res.status === 204) {
-                props.deleteComment(props.commentResponse.comment._id)
+                props.deleteComment(props.commentResponse)
+                props.commentResponse.object.commentCount--
+                state.displayDes = false
             }
         })
 }
 
 const handleReplyClick = () => {
-    if (props.openReply === props.commentResponse.comment._id) {
+    if (props.openReply === props.commentResponse.object._id) {
         props.openReplyFunc()
     } else {
-        props.openReplyFunc(props.commentResponse.comment._id)
+        props.openReplyFunc(props.commentResponse.object._id)
     }
 }
-
-//v-if="commentResponse.comment.user._id === authStore._id" 
+const handleCreateComment = (input, contentId) => {
+    if (input) {
+        const request = {
+            user: {
+                _id: authStore._id,
+                fname: authStore.fname,
+                lname: authStore.lname
+            },
+            contentId: contentId,
+            content: input
+        }
+        axios.post('/comment', request).then(res => {
+            state.comments.push(res.data)
+            props.openCommentFunc(props.commentResponse.object._id)
+            props.commentResponse.object.commentCount++
+            handleContentClick();
+        })
+    }
+}
 </script>
 <template>
     <div :class="`wrapper`">
         <div class="flex justify-between w-[100%] text-justify">
             <div class="w-full">
                 <div class=" float-left h-[2.3rem]">
-                    <ContentUser :user="commentResponse.comment.user"
-                        :signedProfilePic="commentResponse.signedProfilePic" :isComment="true" />
+                    <ContentUser :user="commentResponse.object.user" :isComment="true" />
                 </div>
-                <div class="text-[.85rem] mt-4 ml-4 w-[90%] ">
+                <div class="text-[.85rem] mt-2 ml-4 w-[90%] break-all">
                     <span @click="handleContentClick" class="cursor-pointer">{{ state.commentContent }}</span>
                     <span
-                        @click="() => state.commentContent += commentResponse.comment.content.slice(state.commentContent.length, state.commentContent.length + 300)"
-                        v-if="commentResponse.comment.content.length > 150" class="text-gray-400 cursor-pointer">...See
+                        @click="() => state.commentContent += commentResponse.object.content.slice(state.commentContent.length, state.commentContent.length + 300)"
+                        v-if="commentResponse.object.content.length > 150" class="text-gray-400 cursor-pointer">...See
                         More</span>
                 </div>
             </div>
         </div>
         <div class="mt-2">
-            <div class="relative ">
-                <i v-if="commentResponse.comment.user._id === authStore._id"
-                    @click="() => state.displayOptions = !state.displayOptions"
+            <div v-if="commentResponse.object.user._id === authStore._id" class="relative ">
+                <i @click="() => state.displayOptions = !state.displayOptions"
                     class="pi pi-ellipsis-v text-xl text-gray-400 ">
                 </i>
                 <div v-if="state.displayOptions" class="crud-menu">
@@ -129,13 +146,13 @@ const handleReplyClick = () => {
                     </div>
                 </div>
             </div>
-            <LikeComment :contentResponse="commentResponse" :isComment="true" />
+            <LikeComment v-else :contentResponse="commentResponse" :isComment="true" />
         </div>
     </div>
     <div class="text-[.75rem] ml-8 flex justify-start items-center">
-        <div v-if="!state.displayDes && commentResponse.commentCount > 0" class="cursor-pointer mr-4"
+        <div v-if="!state.displayDes && commentResponse.object.commentCount > 0" class="cursor-pointer mr-4"
             @click="handleContentClick">
-            View ({{ commentResponse.commentCount }}) replies..
+            View ({{ commentResponse.object.commentCount }}) replies..
         </div>
         <div class="cursor-pointer" @click="handleReplyClick">
             Reply
@@ -146,18 +163,18 @@ const handleReplyClick = () => {
         <div v-if="state.displayDes && state.comments.length > 0" class="w-[90%] relative">
             <div class="border-l-2 border-b-2 border-black h-8 w-4 absolute left-[-.75rem] rounded-bl-xl">
             </div>
-            <CommentList :key="commentResponse.comment._id" :comments="state.comments" />
+            <CommentList :key="commentResponse.object._id" :comments="state.comments" />
             <div class="flex ">
-                <div v-if="commentResponse.commentCount - state.comments.length > 0" class="cursor-pointer text-sm"
-                    @click="handleSeeMore">
-                    View ({{ commentResponse.commentCount - state.comments.length }}) replies..
+                <div v-if="commentResponse.object.commentCount - state.comments.length > 0"
+                    class="cursor-pointer text-sm" @click="handleSeeMore">
+                    View ({{ commentResponse.object.commentCount - state.comments.length }}) replies..
                 </div>
                 <SpinnerIcon v-if="state.isViewMoreLoading" />
             </div>
         </div>
     </div>
-    <ReplyBox v-if="openReply === commentResponse.comment._id" :contentId="commentResponse.comment._id"
-        :contentLength="state.comments.length" />
+    <ReplyBox v-if="openReply === commentResponse.object._id" :contentId="commentResponse.object._id"
+        :contentLength="state.comments.length" :handleCreateComment="handleCreateComment" />
 </template>
 <style scoped>
 .tracker {

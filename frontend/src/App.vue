@@ -22,10 +22,6 @@ onMounted(async () => {
   socketStore.setUpNewNotificationListener();
   socketStore.setUpDeleteNotificationListener();
 })
-watch(connectedUsers.value, (newValue, oldValue) => {
-  console.log({ newValue, oldValue })
-})
-
 </script>
 <template>
   <NavBar />

@@ -47,11 +47,12 @@ axios.interceptors.response.use(
     // }
   }
 );
-const pinia = createPinia();
-const app = createApp(App);
-app.use(pinia);
+
+const app = createApp(App)
+app.use(createPinia());
 app.use(router);
 app.directive("click-outside", ClickOutside);
+
 async function authStoreInit() {
   const authStore = useAuthStore();
   await authStore.getLoggedUser();

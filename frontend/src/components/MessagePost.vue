@@ -9,62 +9,44 @@ import axios from 'axios';
 import { useDisplayStore } from '@/store/display';
 import CreateEditView from '@/views/CreateEditView.vue';
 import ChatSearchView from '@/views/ChatSearchView.vue';
+import PostDetailsView from '@/views/PostDetailsView.vue';
 const props = defineProps({
     postResponse: {
         type: Object,
         required: true
     },
 })
-const canvas = ref();
-const displayStore = useDisplayStore();
 const state = reactive({
     liked: false,
     displayOptions: false,
     displayEdit: false,
     displayShare: false,
     displaySend: false,
+    postResponse: '',
 })
-const toggleEdit = () => {
-    state.displayEdit = false
-}
-const toggleShare = () => {
-    state.displayShare = !state.displayShare
-}
-const toggleSend = () => {
-    state.displaySend = !state.displaySend
-}
-const authStore = useAuthStore();
-const handlePostDelete = () => {
-    axios.delete('post/', { params: { postId: props.postResponse.post._id } }).then(res => {
-        if (res && res.status === 204) {
-            router.go('/')
-        }
-    })
-}
 </script>
 <template>
-        <div :class="`general-wrapper `">
+        <div :class="`flex flex-col `">
             <div class="flex justify-between items-center">
                 <ContentUser :postDate="postResponse.post.date"
                     :user="postResponse.post.user"
                     :signedProfilePic="postResponse.signedProfilePic" />
             </div>
-            <div @click="() => router.push({ name: 'postDetails', params: { postId: postResponse.post._id } })
-                " class="p-2 pr-12 pl-12 cursor-pointer ">
+            <div @click="() => state.postResponse = postResponse
+                " class="p-2  cursor-pointer ">
                 <div class="font-bold w-60 text-sm break-words">
-                    {{ postResponse.post.content }}
+                    {{ postResponse.post.strContent }}
                 </div>
-                <div v-if="postResponse.signedPostPic" class="w-72 h-56">
+                <div v-if="postResponse.signedPostPic" class="max-w-72 max-h-56">
                     <img :src="postResponse.signedPostPic" rel="preload" />
                 </div>
             </div>
+            <div class="text-black ">
+                <PostDetailsView v-if="state.postResponse" :postResponse="postResponse" :clickOutside="() => state.postResponse = ''"/>
+            </div>
         </div>
 </template>
-<style scoped>
-.wrapper{
-    min-width: none !important;
-}
-</style>
+
 
 <!-- .tracker {
     height: 20px;

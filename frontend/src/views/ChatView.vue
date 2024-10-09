@@ -228,7 +228,6 @@ onBeforeUnmount(() => {
     overflow-y: hidden;
     padding: .5rem;
     height: 100px;
-
     display: flex;
     justify-content: flex-start;
     align-items: center;

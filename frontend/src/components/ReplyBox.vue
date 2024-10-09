@@ -22,6 +22,13 @@ const props = defineProps({
     },
     setEditedComment:{
         type: Function
+    },
+    handleCreateComment:{
+        type:Function
+    },
+    isPost:{
+        type:Boolean,
+        default: false,
     }
 })
 
@@ -33,28 +40,14 @@ const state = reactive({
 
 const onSelectEmoji = (emoji) => {
     state.input = state.input + emoji.i
+    state.displayEmo = false
 }
 
 const toggleDisplayEmoji = () => {
     state.displayEmo = !state.displayEmo
 }
 
-const handleCreateComment = () => {
-    if (state.input) {
-        const request = {
-            user: {
-                _id: authStore._id,
-                fname: authStore.fname,
-                lname: authStore.lname
-            },
-            contentId: props.contentId,
-            content: state.input
-        }
-        axios.post('/comment', request).then(res => {
-            state.comments = [...state.comments, res.data]
-        })
-    }
-}
+
 const handleEditComment = () => {
     const commentRequest = {
         user: {
@@ -76,21 +69,24 @@ const handleTyping = () => {
         state.displayEmo = !state.displayEmo
     }
 }
-
+const createComment = () => {
+    props.handleCreateComment(state.input, props.contentId)
+    state.input = ''
+}
 </script>
 <template>
     <div :class="`wrapper `">
         <div class="flex justify-center items-center w-full pr-1 pl-1">
-            <button @click="toggleDisplayEmoji"><SmileFace class=" text-3xl text-black"/>
-            </button>
+            <i @click="toggleDisplayEmoji"><SmileFace class=" text-3xl text-black"/>
+            </i>
             <textarea @input="handleTyping" v-model="state.input" type="text" class="input"
             placeholder="Add your comment..."></textarea>
         </div>
         <div class="flex justify-center items-center">
-            <button @click="() => content ? handleEditComment() : handleCreateComment()" class="bg-white text-black p-2 rounded mr-4">{{ content ? 'Edit' : 'Reply' }}</button>
+            <button @click="createComment" class="bg-white text-black p-2 rounded mr-4">Reply</button>
         </div>
-        <div  class="emoji-wrapper cursor-pointer">
-            <EmojiPicker v-if="state.displayEmo" :native="true" @select="onSelectEmoji" />
+        <div v-click-outside="() => state.displayEmo = false"  :class="`absolute top-0 cursor-pointer ${isPost? 'bottom-0 top-auto' : ''}`">
+            <EmojiPicker v-if="state.displayEmo" :native="true" @select="onSelectEmoji"/>
         </div>
     </div>
 </template>
@@ -122,8 +118,5 @@ const handleTyping = () => {
     outline: none;
 }
 
-.emoji-wrapper {
-    position: absolute;
-    top: 3rem;
-}
+
 </style>

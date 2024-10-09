@@ -9,6 +9,7 @@ export const useDisplayStore = defineStore("dispaly", () => {
   const navOptionList = ref(false);
   const massPrevLoader = ref(false);
   function toggleCreateView() {
+    console.log('im here')
     createView.value = !createView.value;
   }
   function toggleSearchView() {

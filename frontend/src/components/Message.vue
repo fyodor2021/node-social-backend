@@ -31,7 +31,7 @@ const toggleSend = () => {
         <ForwardIcon v-if="isSent && message.content.post" @click="() => toggleSend()"
             class="text-3xl cursor-pointer hover:scale-125 duration-300 " />
         <div :class="`wrapper`">
-            <div v-if="!isSent" class="profile-pic-container w-12 h-12 mr-2">
+            <div v-if="!isSent" class="profile-pic-container w-12 h-12 mr-2 sm:hidden">
                 <img :src="signedProfilePic ?
                     signedProfilePic :
                     profile" alt="User Avatar">
@@ -42,10 +42,9 @@ const toggleSend = () => {
             <div class="text-container " v-else>
                 <MessagePost :postResponse="message.content" :isShare="true" />
             </div>
-
         </div>
         <ForwardIcon v-if="!isSent && message.content.post" @click="() => toggleSend()"
-            class="text-3xl cursor-pointer hover:scale-125 duration-300 " />
+            class="text-3xl cursor-pointer min-w-12" />
     </div>
 
 </template>
@@ -74,5 +73,10 @@ const toggleSend = () => {
     border-radius: 1rem;
     overflow-wrap: break-word;
 
+}
+@media only screen and (max-width: 1000px){
+    .wrapper{
+        max-width: 100%;
+    }
 }
 </style>

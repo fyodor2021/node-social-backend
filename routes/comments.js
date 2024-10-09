@@ -64,7 +64,8 @@ commentRouter.post("/", authenticateToken, async (req, res) => {
       content: req.body.content,
     });
     await comment.save();
-    const commentResponse = prepareCommentResponse(comment);
+    const commentResponse = await prepareCommentResponse(comment);
+    console.log(commentResponse)
     res.status(201).send(commentResponse);
   } else {
     res.status(404);
@@ -167,11 +168,22 @@ async function prepareCommentResponse(comment, userId) {
       ]
     );
     const commentResponse = {
-      comment,
-      commentCount,
-      likeCount,
-      liked: like ? true : false,
-      signedProfilePic,
+      object:{
+        content: comment.content,
+        contentId: comment.contentId,
+        date: comment.date,
+        modified: comment.modified,
+        _id:comment._id,
+        commentCount,
+        likeCount,
+        liked: like ? true : false,
+        user:{
+          _id: comment.user._id,
+          fname: comment.user.fname, 
+          lname:comment.user.lname,
+          signedProfilePic,
+        }
+      },
     };
     return commentResponse;
   }
