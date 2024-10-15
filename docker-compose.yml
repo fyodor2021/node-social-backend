@@ -1,33 +1,55 @@
 services:
-  mongo-social:
-    image: mongo
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: root
+  # mongo-social:
+  #   image: mongo
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: root
+  #     MONGO_INITDB_ROOT_PASSWORD: root
+  #   ports:
+  #     - "27017:27017"
+  #   volumes:
+  #     - ./data/mongo/mongo-social:/data/db
+  #     - ./init/mongo/init.js:/docker-entrypoint-initdb.d/init.js:ro
+  #   command: mongod --auth
+  #   container_name: mongo-social
+  #   restart: unless-stopped
+  #   networks:
+  #     - node-social
+  main:
+    image: gcr.io/soci-434619/main
+    build:
+      context: ./main
+      dockerfile: Dockerfile
     ports:
-      - "27017:27017"
-    volumes:
-      - ./data/mongo/mongo-social:/data/db
-      - ./init/mongo/init.js:/docker-entrypoint-initdb.d/init.js:ro
-    command: mongod --auth
-    container_name: mongo-social
+      - "3001:3001"
+    container_name: main
     restart: unless-stopped
     networks:
       - node-social
-
-  # redis:
-  #   image: redis:latest
-  #   restart: always
-  #   ports:
-  #     - "6379:6379"
-  #   container_name: redis-social
-  #   volumes:
-  #     - ./redis/dаta:/root/redis
-  #     # - /path/to/local/redis.conf:/usr/local/etc/redis/redis.conf
-  #   environment:
-  #     - REDIS_PASSWORD=root
-  #     - REDIS_PORT=6379
-  #     - REDIS_DATABASES=16
+  io:
+    image: gcr.io/soci-434619/io
+    build:
+      context: ./io
+      dockerfile: Dockerfile
+    ports:
+      - "3002:3002"
+    container_name: io
+    restart: unless-stopped
+    networks:
+      - node-social
+  gateway:
+    image: gcr.io/soci-434619/gateway
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    ports:
+      - "443:443"
+    container_name: gateway
+    environment:
+      - API_SERVER=https://main:3001/api/v1
+      - IO_SERVER=https://io:3002/socket.io
+    restart: unless-stopped
+    networks:
+      - node-social
 networks:
   node-social:
     driver: bridge
