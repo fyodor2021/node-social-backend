@@ -1,8 +1,8 @@
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const userModel = require("../models/User.js");
-const Redis = require("redis");
-const redisClient = Redis.createClient({url: process.env.REDIS_HOST});
+const {createClient} = require("redis");
+const redisClient = createClient({url: process.env.REDIS_HOST});
 (async () => {
   await redisClient.connect();
   redisClient.on("error", (err) => console.log("Redis Client Error", err));

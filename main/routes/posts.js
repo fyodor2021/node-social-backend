@@ -104,6 +104,7 @@ postRouter.get("/user/id/", async (req, res) => {
     .find({ "user._id": req.query.contentUserId })
     .skip(req.query.offset)
     .limit(3)
+    .sort({date: -1})
     .exec();
   const postResponse = [];
   if (posts) {
@@ -123,7 +124,7 @@ postRouter.get("/", async (req, res,next) => {
     })
     .skip(req.query.offset)
     .limit(3)
-    // .sort({date: -1})
+     //.sort({date: 1})
     .exec();
   const postResponse = [];
   if (posts) {

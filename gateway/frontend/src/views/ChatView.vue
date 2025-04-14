@@ -22,6 +22,7 @@ const authStore = useAuthStore();
 const chatBox = ref(null)
 const message = ref(null)
 const displaySearch = ref(false)
+const hideInput = ref(false)
 const state = reactive({
     input: '',
     search: '',
@@ -37,7 +38,7 @@ const state = reactive({
 const handleMessageSubmit = async () => {
     if (state.selectedUser) {
         const {
-            _id, fname, lname
+            _id, fname, 
         } = state.selectedUser
         const messageRequest = {
             sender: {
@@ -97,6 +98,9 @@ const onSelectEmoji = (emoji) => {
 const toggleDisplayEmoji = () => {
     state.displayEmo = !state.displayEmo
 }
+const toggleInput = () => {
+    hideInput.value = !hideInput.value
+}
 onMounted(async () => {
     axios.get('message/convo', { params: {} })
         .then(res => {
@@ -146,7 +150,7 @@ onBeforeUnmount(() => {
                     </div>
                     <i class="pi pi-pen-to-square" @click="handleToggleChatSearch"></i>
                 </div>
-                <div class="chat-user-list" >
+                <div class="chat-user-list md:w-full" >
                     <div v-for="user in state.usersList" :class="`${state.selectedUser._id === user._id ? 'bg-black': ''}`">
                         <ContentUser :isChatView="true" @click="handleSelectUser(user)"
                              v-if="state.usersList"
@@ -162,22 +166,22 @@ onBeforeUnmount(() => {
                         :signedProfilePic="state.selectedUser.signedProfilePic ? state.selectedUser.signedProfilePic : ''" />
                 </div>
                 <div class="message-list-wrapper" ref="chatBox">
-                    <MessageList :messages="state.messages"
+                    <MessageList :hideInput="toggleInput" :messages="state.messages"
                         :signedProfilePic="state.selectedUser && state.selectedUser.signedProfilePic ? state.selectedUser.signedProfilePic : ''" />
                 </div>
             </div>
-            <form @submit.prevent="handleMessageSubmit" class="flex items-center justify-center w-full p-8 relative
+            <form v-if="!hideInput" @submit.prevent="handleMessageSubmit" class="flex items-center justify-center w-full p-8 relative
                 border-gray-400 focus:outline-none 
-                            focus:border-blue-500">
+                            focus:border-blue-500 z-[10]">
                     <i @click="toggleDisplayEmoji">
                         <SmileFace class=" text-3xl text-black" />
                     </i>
                     <div v-click-outside="() => state.displayEmo = false"
-                        :class="`absolute cursor-pointer bottom-0 top-auto left-0`">
+                        class="absolute cursor-pointer bottom-0 top-auto left-0">
                         <EmojiPicker v-if="state.displayEmo" :native="true" @select="onSelectEmoji" />
                     </div>
-                    <input v-model="state.input" type="text" placeholder="Type a message..."
-                        class="w-full p-2 m-2 rounded-md border">
+                    <input  v-model="state.input" type="text" placeholder="Type a message..."
+                        class="w-full p-2 m-2 rounded-md border ">
                     <button v-if="state.input" class="button" type="submit">Send</button>
                     <button v-else class="button bg-gray-300" disabled>Send</button>
                 </form>
@@ -200,7 +204,7 @@ onBeforeUnmount(() => {
 .side-wrapper {
     width: 100%;
     background-color: black;
-    padding: 0.5rem;
+    padding: 0.15rem;
     margin-bottom: .25rem;
 }
 
@@ -244,7 +248,6 @@ onBeforeUnmount(() => {
 .chat-user-list {
     display: flex;
     flex-direction: row;
-    max-width: 76vw;
     overflow-x: auto;
     overflow-y: hidden;
     padding: .5rem;
@@ -276,6 +279,7 @@ onBeforeUnmount(() => {
     background-color: black;
     color: white;
     font-size: 1.5rem;
+    padding:.5rem;
     width: 100%;
 }
 

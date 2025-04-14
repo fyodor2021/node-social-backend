@@ -5,11 +5,7 @@ const bucketName = process.env.BUCKET_NAME;
 const keyFilename = process.env.KEY_FILE_NAME;
 const Redis = require("redis");
 const redisClient = Redis.createClient({
-  password: process.env.REDIS_PWD,
-  socket: {
-    host: process.env.REDIS_HOST,
-    port: process.env.REDIS_PORT,
-  },
+  url: process.env.REDIS_HOST
 });
 (async () => {
   await redisClient.connect();

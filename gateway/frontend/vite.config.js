@@ -19,12 +19,12 @@ export default defineConfig({
     },
     proxy: {
       "/api/v1": {
-        target: "https://localhost",
+        target: "http://localhost",
         secure: false,
         changeOrigin: false,
       },
       '/socket.io': {
-        target: 'https://localhost',
+        target: 'http://localhost',
         secure: false,
         changeOrigin: false,
         ws: true

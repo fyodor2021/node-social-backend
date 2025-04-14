@@ -17,9 +17,7 @@ app.use(
     credentials: true,
   })
 );
-console.log(process.env.ACTIVE_PROFILE);
-console.log(process.env.API_SERVER);
-console.log(process.env.IO_SERVER);
+
 app.use(
   "/api/v1",
   createProxyMiddleware({

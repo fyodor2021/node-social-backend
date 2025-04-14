@@ -2,7 +2,7 @@
 import { useAuthStore } from '@/store/auth';
 import Message from './Message.vue';
 
-defineProps({
+const props = defineProps({
     messages: {
         type: Array,
         required: true
@@ -10,11 +10,17 @@ defineProps({
     signedProfilePic: {
         type: String,
     },
+    hideInput:{
+        type:Function,
+        required: true,
+    }
 })
 const authStore = useAuthStore();
 
 </script>
 <template>
-    <Message ref="message" v-if="messages" v-for="message in messages" :message="message"
-        :signedProfilePic="signedProfilePic" :isSent="message.sender._id === authStore._id" :key="message._id" />
+    <div class="m-l-container overflow-auto min-h-[50vh]">
+        <Message ref="message" v-if="messages" v-for="message in messages" :message="message" :hideInput="props.hideInput"
+            :signedProfilePic="signedProfilePic" :isSent="message.sender._id === authStore._id" :key="message._id" />
+    </div>
 </template>

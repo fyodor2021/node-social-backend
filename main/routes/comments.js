@@ -173,14 +173,16 @@ async function prepareCommentResponse(comment, userId) {
       ]
     );
     const commentResponse = {
-      content: comment.content,
-      contentId: comment.contentId,
-      date: comment.date,
-      modified: comment.modified,
-      _id: comment._id,
-      commentCount,
-      likeCount,
-      liked: like ? true : false,
+      
+        content: comment.content,
+        contentId: comment.contentId,
+        date: comment.date,
+        modified: comment.modified,
+        _id: comment._id,
+        commentCount,
+        likeCount,
+        liked: like ? true : false,
+          
       user: {
         _id: comment.user._id,
         fname: comment.user.fname,

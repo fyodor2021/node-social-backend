@@ -15,22 +15,27 @@ const props = defineProps({
     message: {
         type: Object,
         required: true
+    },
+    hideInput:{
+        type:Function,
+        required: true
     }
 })
 const state = reactive({
     displaySend: false
 })
 const toggleSend = () => {
+    props.hideInput();
     state.displaySend = !state.displaySend
 }
 </script>
 <template>
     <ChatSearchView v-if="state.displaySend && message.content.user" :message="message.content"
-        :handleToggleChatSearch="() => state.displaySend = !state.displaySend" />
+        :handleToggleChatSearch="toggleSend" />
     <div :class="`m-container w-full   ${isSent ? 'justify-end' : ''}`">
         <ForwardIcon v-if="isSent && message.content.user" @click="() => toggleSend()"
             class="text-3xl cursor-pointer hover:scale-125 duration-300 " />
-        <div :class="`wrapper`">
+        <div class="wrapper">
             <div v-if="!isSent" class="profile-pic-container w-12 h-12 mr-2 sm:hidden">
                 <img :src="signedProfilePic ?
                     signedProfilePic :
