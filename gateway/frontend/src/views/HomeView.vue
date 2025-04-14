@@ -20,6 +20,7 @@ function handleScroll(e) {
 
 onMounted(() => {
   axios.get('/post/', { params: { offset: 0 } }).then(res => {
+    console.log(res)
     state.posts = res && res.data
     state.isLoading = false
     setTimeout(() => {

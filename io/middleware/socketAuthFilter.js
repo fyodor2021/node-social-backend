@@ -5,11 +5,8 @@ const userModel = require("../models/User.js");
 const cookie = require("cookie");
 const Redis = require("redis");
 const redisClient = Redis.createClient({
-  password: process.env.REDIS_PWD,
-  socket: {
-    host: process.env.REDIS_HOST,
-    port: process.env.REDIS_PORT,
-  },
+  url: process.env.REDIS_HOST
+
 });
 (async () => {
   await redisClient.connect();

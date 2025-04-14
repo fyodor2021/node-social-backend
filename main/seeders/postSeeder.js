@@ -62,7 +62,7 @@ function generatePosts(user) {
         lname: user.lname,
         email: user.email,
       },
-      fileName: "customer.jpeg",
+      fileName: "customer.jpg",
 
       strContent:
         "We love hearing from our amazing customers! Here’s what [Customer’s Name] had to say about their recent experience: 'The service was top-notch, and I couldn't be happier with my purchase!' Thank you for the feedback, [Customer’s Name]! 🌟🙌 #CustomerSpotlight #Testimonial",
@@ -75,7 +75,7 @@ function generatePosts(user) {
         lname: user.lname,
         email: user.email,
       },
-      fileName: "webinar.jpeg",
+      fileName: "webinar.jpg",
 
       strContent:
         "Exciting news! We’re hosting a webinar on [Date] about [Topic]. Join us for insights, tips, and a Q&A session with industry experts. Register now to secure your spot! 🌐📅 #Webinar #EventAnnouncement",
@@ -138,7 +138,7 @@ function generatePosts(user) {
         lname: user.lname,
         email: user.email,
       },
-      fileName: "phone-battery.png",
+      fileName: "phone-battery.jpg",
 
       strContent:
         "Tech Tip: To save battery life on your smartphone, turn off background app refresh and reduce screen brightness. 📱🔋 These simple adjustments can make a big difference! What are your go-to tips for saving battery? #TechTip #SmartphoneHacks",
@@ -151,7 +151,7 @@ function generatePosts(user) {
         lname: user.lname,
         email: user.email,
       },
-      fileName:"thinker.jpeg",
+      fileName:"thinker.jpg",
 
       strContent:
         "'The best way to predict the future is to invent it.' – Alan Kay. Take control of your destiny and start building the future you envision today. 🌟✨ #QuoteOfTheDay #Inspiration",
@@ -177,7 +177,7 @@ function generatePosts(user) {
         lname: user.lname,
         email: user.email,
       },
-      fileName: "weekend.jpg",
+      fileName: "vacation.jpg",
       strContent:
         "Dreaming of a quick escape? How about a weekend getaway to [Destination]? 🏞️ From scenic trails to charming local shops, it’s the perfect place to unwind and explore. Where’s your favorite weekend destination? #TravelTuesday #WeekendGetaway",
       status: "public",

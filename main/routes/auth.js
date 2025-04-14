@@ -7,6 +7,7 @@ const bcrypt = require("bcrypt");
 const authenticateToken = require("../middleware/tokenAuthFilter.js");
 const Redis = require("redis");
 const { getSignedURL } = require("../functions/gcsFunctions.js");
+console.log(process.env.REDIS_HOST)
 const redisClient = Redis.createClient({url: process.env.REDIS_HOST});
 (async () => {
   redisClient.connect().catch(error => {

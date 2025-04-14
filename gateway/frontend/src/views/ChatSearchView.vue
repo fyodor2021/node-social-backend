@@ -40,6 +40,7 @@ const state = reactive({
     selectedUser: '',
 })
 const onSearchInput = () => {
+    if(state.search === ' ') state.search = "";
     if (!props.isProfile) {
         if (state.search) {
             axios
@@ -98,7 +99,7 @@ const handleSendPost = () => {
 }
 </script>
 <template>
-    <div class="c-s-container">
+    <div class="c-s-container z-[9999]">
         <div class="wrapper" ref="chatSearch" v-click-outside="handleToggleChatSearch">
             <div>
                 <header class="title">
@@ -134,7 +135,6 @@ const handleSendPost = () => {
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 99999;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -143,7 +143,7 @@ const handleSendPost = () => {
 
 .wrapper {
     width: 50%;
-    height: 60%;
+    height: 50%;
     box-shadow: 0px 0px 20px #00000073;
     border-radius: .5rem;
     border-radius: 1rem;

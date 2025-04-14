@@ -40,7 +40,7 @@ const handleScroll = (e) => {
                 if (res.status === 200) {
                     state.comments = [...state.comments, ...res.data]
                 }
-            }).catch((err) => {})
+            }).catch((err) => { })
     }
 }
 
@@ -97,7 +97,7 @@ onBeforeUnmount(() => {
                         :handlePostClick="handlePostClick" :isShare="true" />
                 </div>
             </div>
-            <div class="flex h-[100%] flex-[2] flex-col justify-between md:w-[100%] mdh:w-[100%]  p-4">
+            <div class="flex h-[80%] flex-[2] flex-col justify-between md:w-[100%] mdh:w-[100%]  p-4">
                 <div>
                     <div class="">
                         <ContentUser :user="postResponse.user" />
@@ -105,14 +105,14 @@ onBeforeUnmount(() => {
                     <div class="font-bold ml-4">
                         {{ postResponse.strContent }}
                     </div>
+                </div>
+                <div>
                     <div v-if="state.isLoading" class="w-full flex justify-center">
                         <SpinnerIcon class="mt-12 w-12 h-12 flex justify-center items-center" />
                     </div>
                     <div v-else class="comment-list" ref="commentListRef">
                         <CommentList v-if="state.comments" :comments="state.comments" />
                     </div>
-                </div>
-                <div>
                     <div class="w-[30%] md:w-1/4">
                         <LikeComment :isDetails="true" :contentResponse="postResponse" />
                     </div>
@@ -137,7 +137,7 @@ onBeforeUnmount(() => {
 
 .comment-list {
     overflow: auto;
-    height: 70%;
+    height: 65%;
     max-height: 430px;
 }
 
