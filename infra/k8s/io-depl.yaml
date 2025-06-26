@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: io-depl
+spec:
+  replicas: 1
+  selector: 
+    matchLabels: 
+      app: io
+  template:
+    metadata:
+      labels:
+        app: io
+    spec: 
+      containers: 
+        - name: io
+          image: causeleea/io
+          env: 
+            - name: MONGO_URI
+              value: 'mongodb://main-mongo-srv:27017/social-server'
+            - name: REDIS_HOST
+              value: 'redis://main-redis-srv:6379'
+            - name: JWT_SECRET
+              value: 'KLJASLKDJFLK9P187Y23P94YHU12KEHJRNKASJHDKFJH'
+            - name: JWT_REFRESH_SECRET
+              value: 'KLJASLKDlkjxcvcvxcjkladsfkljaiooiuqwehjrFJH'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: io-srv
+spec:
+  selector: 
+    app: io
+  ports:
+    - name: io
+      protocol: TCP
+      port: 3000
+      targetPort: 3000
+  

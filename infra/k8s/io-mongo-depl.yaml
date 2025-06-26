@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: io-mongo-depl
+spec:
+  replicas: 1
+  selector: 
+    matchLabels: 
+      app: io-mongo
+  template:
+    metadata:
+      labels:
+        app: io-mongo
+    spec: 
+      containers: 
+        - name: io-mongo
+          image: mongo
+---
+apiVersion: v1
+kind: Service
+metadata: 
+  name: io-mongo-srv
+spec: 
+  selector: 
+    app: io-mongo
+  ports:
+    - name: db
+      port: 27017
+      protocol: TCP
+      targetPort: 27017
+    

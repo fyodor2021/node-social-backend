@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: main-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: main
+  template:
+    metadata:
+      labels:
+        app: main
+    spec:
+      containers:
+        - name: main
+          image: causeleea/main
+          env:
+            - name: MONGO_BASE_URL
+              value: 'mongodb://main-mongo-srv:27017/social-server'
+            - name: REDIS_URL
+              value: 'redis://main-redis-srv:6379'
+            - name: PROJECT_ID
+              value: 'soci-434619'
+            - name: BUCKET_NAME
+              value: 'node-social'
+            - name: KEY_FILE_NAME
+              value: 'soci-434619-d3aa0db789b3.json'
+            - name: JWT_SECRET
+              value: 'KLJASLKDJFLK9P187Y23P94YHU12KEHJRNKASJHDKFJH'
+            - name: JWT_REFRESH_SECRET
+              value: 'KLJASLKDlkjxcvcvxcjkladsfkljaiooiuqwehjrFJH'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: main-srv
+spec:
+  selector:
+    app: main
+  ports:
+    - name: main
+      protocol: TCP
+      port: 3000
+      targetPort: 3000

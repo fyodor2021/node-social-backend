@@ -1,0 +1,40 @@
+apiVersion: skaffold/v2alpha3
+kind: Config
+deploy:
+  kubectl:
+    manifests:
+      - ./infra/k8s/main-mongo-depl.yaml
+      - ./infra/k8s/main-redis-depl.yaml
+      - ./infra/k8s/io-depl.yaml
+      - ./infra/k8s/io-mongo-depl.yaml
+      - ./infra/k8s/client-depl.yaml
+      - ./infra/k8s-dev/*
+      - ./infra/k8s/main-depl.yaml
+build:
+  local:
+    push: false
+  artifacts:
+    - image: causeleea/main
+      context: main
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: 'src/**/*.js'
+            dest: .
+    - image: causeleea/io
+      context: io
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: 'src/**/*.js'
+            dest: .
+    - image: causeleea/client
+      context: client
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: '**/*.js'
+            dest: .

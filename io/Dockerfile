@@ -1,17 +1,7 @@
-FROM node:22-alpine
+FROM node:alpine
 
-RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
-
-WORKDIR /home/node/app
-
-COPY package.json ./
-
-USER node
-
-RUN npm install
-
-COPY --chown=node:node . .
-
-EXPOSE 3001
-
-CMD [ "node", "ioServer.js" ]
+WORKDIR  /app
+COPY package.json .
+RUN npm install --omit=dev
+COPY . .
+CMD ["npm", "start"]
